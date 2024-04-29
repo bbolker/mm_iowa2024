@@ -1,0 +1,29 @@
+---
+title: "Iowa workshop schedule"
+date: "`r format(Sys.time(),'%d %b %Y')`"
+---
+
+**approximate and subject to change!**
+
+## Monday: graphics, GLM reminder, GLMM overview, inference/philosophy
+
+* 9-9:45 overview, LMMs
+* 9:45-10:15 **break**
+* 10:15-10:45 LMMs, lab
+* 10:45-11:15 **coffee?**
+* 11:15-noon GLMMs
+* noon - 1 **lunch**
+* 1-1:45 GLMM lab
+* 1:45 - 2 **break**
+* 2-2:45 
+* 2:45-3:15 coffee
+* 3:15-4
+* 4-4:15
+* 4:15-5 open session/Q&A?
+
+- [intro/overview](notes/intro.html)
+- [ggplot/graphics intro](notes/datavis.html)
+- [GLM reminder](notes/glm_basic.html)
+- [mixed models overview](notes/glmm.slides.html)
+- [statistical inference/philosophy](notes/model_inference.html)
+

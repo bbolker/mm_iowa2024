@@ -1,0 +1,62 @@
+---
+title: "Setup for GLMM course"
+---
+
+1. Please make sure you have the **latest version** of R (4.4.0) installed from [CRAN](https://cran.r-project.org/).
+
+2. The RStudio interface is strongly recommended; you can download it [here](https://www.rstudio.com/products/rstudio/download/) (get the free Desktop version).
+
+3. Install primary GLMM-fitting packages (and a variety of extras).
+Note that this list deliberately takes an [everything-but-the-kitchen-sink](https://en.wiktionary.org/wiki/everything_but_the_kitchen_sink#English) approach, since it will save time to have everything you might want installed in advance. If you have questions or problems, please contact me before the workshop.
+
+```{r pkg1,eval=FALSE}
+## modeling packages
+mod_pkgs <- c("bbmle", "blme", "brms", "gamm4", "glmmLasso", "glmmML", "GLMMadaptive",
+              "glmmTMB", "lme4", "MCMCglmm", "robustlmm", "rstanarm", "spaMM")
+## miscellaneous/data manipulation
+data_pkgs <- c("rbenchmark", "brglm", "devtools", "emdbook", "MEMSS",
+               "plyr", "reshape2", "SASmixed", "tidyverse")
+## model processing/diagnostics/reporting
+diag_pkgs <- c("afex", "agridat", "AICcmodavg", "aods3", "arm",
+               "broom", "broom.mixed", "cAIC4", "car", "coda", "DHARMa",
+               "effects", "emmeans", "HLMdiag", "Hmisc", "lmerTest", "multcomp",
+               "MuMIn", "pbkrtest", "performance", "RLRsim", "rockchalk", "sjPlot",
+               "sjstats", "stargazer", "texreg", "tidybayes",
+               "bayesplot", "posterior", "bayestestR")
+## graphics
+graph_pkgs <- c("cowplot", "directlabels",
+                "dotwhisker", "GGally", "ggalt", "ggplot2",
+                "ggpubr", "ggstance", "gridExtra", "plotMCMC",
+                "plotrix", "see", "viridis")
+
+all_pkgs <- c(mod_pkgs,data_pkgs,diag_pkgs,graph_pkgs)
+avail_pkgs <- rownames(available.packages())
+already_installed <- rownames(installed.packages())
+to_install <- setdiff(all_pkgs,already_installed)
+if (length(to_install)>0) {
+    install.packages(to_install,dependencies=TRUE)
+}
+## get INLA (optional!)
+install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE) 
+```
+
+There is no need to (re)install packages such as `grid`, `nlme`, `MASS`, `mgcv`, as they come with a standard R installation. 
+
+4. If we end up using the `brms` package for Bayesian computation, we will need compilers installed as well: 
+
+> Because brms is based on Stan, a C++ compiler is required. The program Rtools (available on https://cran.r-project.org/bin/windows/Rtools/) comes with a C++ compiler for Windows. On Mac, you should install Xcode. For further instructions on how to get the compilers running, see the prerequisites section on https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started.
+
+* If you don't have 'development tools' (compilers etc.) installed, do that first.  You can try the instructions [here](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started#configuring-c-toolchain) or [here](https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html#cpp-toolchain)
+* Install `rstan` (`install.packages("rstan")`)
+* Install `cmdstanr`
+From  https://mc-stan.org/cmdstanr/articles/cmdstanr.html:
+
+```{r cmdstanr, message = FALSE}
+while (!require("cmdstanr")) {
+    install.packages("cmdstanr", repos = c("https://mc-stan.org/r-packages/", getOption("repos", "https://cloud.r-project.org")))
+}
+check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)
+```
+
+---
+Last updated: `r Sys.time()`

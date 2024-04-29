@@ -1,0 +1,16 @@
+---
+title: "Data sets"
+date: "`r format(Sys.time(), '%H:%M %d %B %Y ')`"
+bibliography: glmm.bib
+---
+
+Data sets can be found [here](https://github.com/bbolker/goettingen_2019/tree/master/data)
+
+```{r tab,echo=FALSE}
+library(pander)
+x <- read.csv("datasets.csv",check.names=FALSE)
+pander(x,split.tables=Inf,justify="left")
+```
+
+## References
+
