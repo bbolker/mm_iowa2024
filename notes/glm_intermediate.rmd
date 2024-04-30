@@ -1,0 +1,218 @@
+---
+title: "intermediate generalized linear models"
+author: "Ben Bolker"
+---
+
+## packages
+
+```{r pkgs}
+library(lme4)
+library(ggplot2); theme_set(theme_bw())
+library(aods3)
+```
+
+# overdispersion
+
+## overdispersion
+
+- more variance than expected based on statistical model
+- e.g. variance > mean for Poisson
+- in general leads to *overconfidence*
+    - overly narrow confidence intervals
+    - too-small p-values
+	- inflated type I error
+
+## Tick example
+
+```{r tick_plot}
+ticks <- read.table("../data/Elston2001_tickdata.txt",header=TRUE)
+ticks <- transform(ticks,
+          YEAR=factor(YEAR),
+          scHEIGHT=(HEIGHT-min(HEIGHT))/100)
+ggplot(ticks,aes(scHEIGHT,TICKS,colour=YEAR))+
+    geom_point()+
+    scale_y_log10()
+```
+
+```{r tick_model}
+ticks_glm1 <- glm(TICKS~scHEIGHT*YEAR,ticks,family=poisson)
+aods3::gof(ticks_glm1)
+```
+
+## methods
+
+- quasi-likelihood models
+- compounded distributions
+- observation-level random effects
+
+## quasi-likelihood
+
+- quantify excess variance
+- e.g. $\phi$=`sum(residuals(m,type="pearson")^2)/df.residual(m)`
+- multiply estimated standard errors by $\sqrt{phi}$
+- recompute $Z$/$t$ statistics, $p$ values
+- `family=quasipoisson` or `family=quasibinomial` does this automatically
+- quasilikelihood/quasiAIC? Depends who you ask.
+
+## ticks
+
+```{r tick_qp}
+ticks_QP <- update(ticks_glm1,family=quasipoisson)
+summary(ticks_QP)
+```
+
+## compounded distributions
+
+- instead of Poisson/binomial/etc., use a compounded distribution
+- Gamma + Poisson = negative binomial (e.g. `MASS::glmer.nb`)
+- Beta + binomial = beta-binomial (e.g. `glmmTMB`, `bbmle::mle2`)
+
+```{r tick_cp}
+ticks_NB <- MASS::glm.nb(TICKS~scHEIGHT*YEAR,data=ticks)
+
+summary(ticks_NB)
+## or:
+library(glmmTMB)
+glmmTMB(TICKS~scHEIGHT*YEAR,data=ticks,family=nbinom2)
+```
+
+## observation-level random effects
+
+- use mixed models; add a Normal deviate to each observation  
+(on the link-function/linear predictor scale)
+- e.g. logit-Normal-binomial, or log-Normal-Poisson
+
+```{r}
+ticks <- transform(ticks,
+        obs=1:nrow(ticks))
+ticks_OR <- glmer(TICKS~scHEIGHT*YEAR+(1|obs),data=ticks,
+                  family=poisson)
+summary(ticks_OR)
+```
+
+```{r eval=FALSE,echo=FALSE}
+dwplot(list(OR=ticks_OR,NB=ticks_NB,glm1=ticks_glm1,QP=ticks_QP))
+```
+
+## offsets
+
+- account for differences in sampling effort, exposure
+- count data: typically `log(effort)`, `log(area)` etc.
+- `y ~ x + offset(log(e))`: $\exp(\log(y)) = \exp(\beta_0 + \beta_1 x + \log(e))$ or
+$$
+y = \exp(\beta_0 + \beta_1 x) \cdot \exp(\log(e)) = e \cdot \exp(\beta_0 + \beta_1 x)
+$$
+- predictions are for 1 unit of effort/area
+- for mortality risk: $\log(t)$ on *complementary log-log link* scale (see [here](https://rpubs.com/bbolker/logregexp))
+
+## complete separation
+
+- what happens when a logistic regression model is too good?
+- some threshold: all below=0, all above=1
+- best slope estimate on logit scale is *infinite*
+- Wald approximation breaks down (*Hauck-Donner effect*)
+- symptoms: $|\beta|>10$, crazy SEs and terrible p-values
+- strong effects, or slicing data too thin
+
+
+## solutions
+
+- model comparison (`anova()`) still works
+- profile CI should get *lower* limit of parameters
+- penalization (`brglm`, "Firth's method")
+- Bayesian approaches: put a prior on parameters (`blme`, `brms`)
+
+# zero-inflation
+
+## zero-inflation [@martin_zero_2005]
+
+- *too many* zeros
+- "lots of zeros" can occur just because of low mean
+- mode at zero *and* away from zero usually does mean Z-I
+
+## zero-inflation models
+
+- *zero-inflation*: mixture of structural and sampling zeroes  
+(**not** "true" and "false")
+- *hurdle*: zeros plus truncated distribution
+- choice depends on meaning of zeros  
+- Z-I as well as conditional mean may be modeled (e.g. `glmmTMB`)
+
+## testing for zero-inflation
+
+- a little tricky
+- easiest (?) to fit Z-I model and then test whether you needed it or not
+- *posterior predictive simulation*
+
+## posterior simulation
+
+Use the `simulate()` method, if available
+
+```{r post_ZI}
+data(Salamanders,package="glmmTMB")
+ss <- subset(Salamanders,spp=="GP" & mined=="no")
+## fit model
+ggplot(ss,aes(DOY,count))+stat_sum()
+salam_1 <- glm(count~DOY,ss,family=poisson)
+## simulate 1000 realizations from the model
+sims <- simulate(salam_1,1000)
+## count proportions of zeros per simulation
+zero_prop <- prop.table(table(colSums(sims==0)))
+zero_ind <- as.numeric(names(zero_prop))
+obs_zeros <- sum(ss$count==0)
+## p-value
+sum(zero_prop[zero_ind>=obs_zeros])
+```
+
+## zero-inflation plot
+
+```{r post_ZI_plot}
+plot(zero_prop)
+points(obs_zeros,0,col="red",pch=16)
+```
+
+## alternative families and links
+
+## Gamma
+
+- useful
+- simply log-transforming may be easier: log-Normal very similar to Gamma in some ways
+- choose based on interpretation; behaviour near zero; tail behaviour
+
+```{r denscmp,echo=FALSE,fig.width=8}
+par(mfrow=c(1,2),las=1,bty="l")
+curve(dgamma(x,shape=0.2,scale=5),from=0,to=3,n=501,
+      ylab="density")
+curve(dlnorm(x,meanlog=0,sdlog=3),add=TRUE,col=2,lty=2,n=501)
+legend("topright",c("Gamma","log-Normal"),col=1:2,lty=1:2)
+curve(dgamma(x,shape=0.2,scale=5),from=0.001,to=10,n=501,
+      ylab="density",log="xy")
+curve(dlnorm(x,meanlog=0,sdlog=3),add=TRUE,col=2,lty=2,n=501)
+```
+
+## complementary log-log link
+
+- useful for discrete-time survival analysis
+- parameters on the *log-hazard* scale
+
+# beyond the exponential family
+
+## beta regression
+
+- GLMs require counts (denominators), e.g. 40% = 4/10
+- what if data don't have obvious denominators?
+- e.g. cover scores, activity budgets
+- *Beta distribution*: `betareg`, `glmmTMB`, `brms`
+
+## negative binomial regression
+
+- for overdispersion
+- standard NB ("NB2"): Gamma+Poisson, variance = $\mu(1+\mu/k)$, $k >0$
+- NB1: variance=$\mu \phi$, $\phi>1$
+
+## others ...
+
+- beta-binomial (overdispersed binomial)
+- Tweedie (zeros + continuous)
+- COM-Poisson, generalized Poisson [@lynch_dealing_2014]
+- ordinal models (`MASS::polr`, `ordinal` package)

@@ -1,0 +1,11 @@
+---
+title: Intro material
+author: Ben Bolker
+date: "`r format(Sys.time(), '%H:%M %d %B %Y')`"
+---
+
+- introductions
+- course material: https://github.com/bbolker/mm_iowa2024 and https://bbolker.github.io/mm_iowa2024
+- data sets
+- please ask questions!
+

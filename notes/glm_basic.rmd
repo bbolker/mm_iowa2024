@@ -1,0 +1,307 @@
+---
+title: "basic generalized linear models"
+author: "Ben Bolker"
+bibliography: "../glmm.bib"
+---
+
+![cc](pix/cc-attrib-nc.png)
+Licensed under the 
+[Creative Commons attribution-noncommercial license](http://creativecommons.org/licenses/by-nc/3.0/).
+Please share \& remix noncommercially, mentioning its origin.
+
+```{r pkgs,message=FALSE}
+library(ggplot2); theme_set(theme_bw())
+library(ggExtra)
+library(cowplot)
+library(dotwhisker)
+```
+
+# From Linear to generalized linear models
+
+## Why GLMs?
+
+- assumptions of linear models do break down sometimes
+- count data: discrete, non-negative
+- proportion data: discrete counts, $0 \le x \le N$
+
+- hard to transform to Normal
+- linear model doesn't make sense
+
+![](pix/twitter_glmjoke.png)
+<!-- https://twitter.com/thedavidpowell/status/984432764215754753 -->
+
+## GLMs in action
+
+- vast majority of GLMs
+    - *logistic regression* (binary/Bernoulli data)
+    - *Poisson regression* (count data)
+- lots of GLM theory carries over from LMs
+    - formulas
+    - parameter interpretation (partly)
+    - diagnostics (partly)
+
+## Most GLMs are logistic
+
+```{r gscrape0,echo=FALSE}
+sscrape <- function(string="logistic+regression") {
+    require("stringr")
+    sstring0 <- "http://scholar.google.ca/scholar?as_q=&num=10&btnG=Search+Scholar&as_epq=STRING&as_oq=&as_eq=&as_occt=any&as_sauthors=&as_publication=&as_ylo=&as_yhi=&as_sdt=1.&as_sdtp=on&as_sdts=5&hl=en"
+    sstring <- sub("STRING",string,sstring0)
+    rr <- suppressWarnings(readLines(url(sstring)))
+    ## rr2 <- rr[grep("[Rr]esults",rr)[1]]
+    rr2 <- rr
+    rstr <- gsub(",","",
+                 gsub("</b>.+$","",
+                      gsub("^.+[Rr]esults.+of about <b>","",rr2)))
+    rstr <- na.omit(str_extract(rr2,"About [0-9,]+ results"))
+    rnum <- as.numeric(gsub(",","",str_extract(rstr,"[0-9,]+")))
+    attr(rnum,"scrape_time") <- Sys.time()
+    return(rnum)
+}
+``` 
+
+```{r gscrapedata,echo=FALSE}
+fn <- "../data/gscrape.RData"
+## could use a caching solution for Sweave (cacheSweave, weaver package,
+##  pgfSweave ... but they're all slightly wonky with keep.source at
+##  the moment
+if (!file.exists(fn)) {
+  gscrape <- sapply(c("generalized+linear+model",
+                      "logistic+regression","Poisson+regression","binomial+regression"),sscrape)
+  save("gscrape",file=fn)
+} else load(fn)
+```       
+
+```{r gscrapepix,message=FALSE,echo=FALSE}
+d <- data.frame(n=names(gscrape),v=gscrape)
+d$n <- reorder(d$n,d$v)
+ggplot(d,aes(x=v,y=n))+geom_point(size=5)+
+    xlim(0.5e4,2e6)+
+    scale_x_log10(limits=c(1e4,2e6))+
+    geom_text(aes(label=v),colour="red",vjust=2)+
+    labs(y="",x="Google Scholar hits")
+```
+
+## Family
+
+- family: what kind of data do I have?
+    - from **first principles**: family specifies the relationship between the mean and variance
+	- binomial: proportions, out of a total number of counts; includes binary (Bernoulli) ("logistic regression")
+	- Poisson (independent counts, no maximum, or far from the maximum)
+	- other (Normal (`"gaussian"`), Gamma)
+- default family for `glm` is Gaussian
+
+## link functions
+
+- these transform *prediction*, not response
+- e.g. rather than $\log(\mu) = \beta_0+\beta_1 x$,
+use $\mu = \exp(\beta_0+\beta_1 x)$
+- in this case log is the **link function**, exp is the **inverse link** function
+- extreme observations don't cause problems (usually)
+
+## family definitions
+
+- link function plus variance function
+- typical defaults
+     - Poisson: log (exponential)
+     - binomial: logit/log-odds (logistic)
+	 - Gamma: should probably use `link="log"` rather than inverse (default)
+	 
+## log link
+
+- proportional scaling of effects
+- small values of coefficients ($<0.1$) $\approx$ proportionality
+- otherwise change per unit is $\exp(\beta)$
+- large parameter values ($>10$) mean some kind of trouble
+
+## logit link/logistic function
+
+``` {r logit-pic, echo=FALSE,fig.width=10}
+par(las=1,bty="l")
+par(mfrow=c(1,2),oma=c(0,3,0,0),xpd=NA)
+curve(plogis(x),from=-4,to=4,xlab="x (log-odds)",ylab="logistic(x)\n(probability)")
+curve(qlogis(x),from=plogis(-4),to=plogis(4),xlab="x (probability)",ylab="logit(x)")
+```
+
+- `qlogis()` function (`plogis()` is logistic/inverse-link)
+- *log-odds* ($\log(p/(1-p))$)
+- most natural scale for probability calculations
+- interpretation depends on *base probability*
+     - small probability: like log (proportional)
+     - large probability: like log(1-p)
+	 - intermediate ($0.3 <p <0.7$): effect $\approx \beta/4$
+
+## binomial models
+
+- for Poisson, Bernoulli responses we only need one piece of information
+- how do we specify denominator ($N$ in $k/N$)?
+     - traditional R: response is two-column matrix of successes and failures [`cbind(k,N-k)` **not** `cbind(k,N)`]
+     - also allowed: response is proportion ($k/N$), also specify `weights=N`
+     - if equal for all cases and specified on the fly need to replicate:  
+`glm(p~...,data,weights=rep(N,nrow(data)))`
+
+## diagnostics
+
+- harder than linear models: `plot` is still somewhat useful
+- binary data especially hard (e.g. `arm::binnedplot`)
+- goodness of fit tests, $R^2$ etc. hard (can always compute `cor(observed,predict(model, type="response"))`)
+- residuals are *Pearson residuals* by default ($(\textrm{obs}-\textrm{exp})/V(\textrm{exp})$); predicted values are on the effect scale (e.g. log/logit) by default (use `type="response"` to get data-scale predictions)
+- also see `DHARMa` package
+
+## what to do about problems
+
+- consider problems *in order*: bias > heterosced. > outliers > distribution > overdisp.
+- bias: add covariates? polynomial or spline (GAM) predictors? change link function?
+- heteroscedasticity: change variance relationship? (NB1 vs NB2)
+- outliers: drop outliers? robust methods?
+
+## overdispersion
+
+- too much variance (after fixing other problems)
+- should have residual df $\approx$ residual deviance
+- slightly better test: sum of squares of Pearson residuals $\sim \chi^2$
+- `aods3::gof()`
+- overdispersion < 1.05 (small); >5 maybe something wrong?
+
+## overdispersion: solutions
+
+- **quasilikelihood**: adjust standard errors, CIs, p-values
+     - Wald tests only (see below)
+- overdispersed distributions (e.g. negative binomial, beta-binomial)
+- observation-level random effects (later)
+
+## back-transformation
+
+- confidence intervals are symmetric on link scale
+- can back-transform estimates and CIs for log
+- logit is hard (must pick a reference level)
+- don't back-transform standard errors!
+
+## estimation
+
+- iteratively re-weighted least-squares
+- usually Just Works
+
+## inference
+
+like LMs, but:
+
+- one-parameter tests are usually $Z$ rather than $t$
+- CIs based on standard errors are approximate (Wald)
+- `confint.glm()` computes *likelihood profile* CIs
+
+## Common(est?) `glm()` problems
+
+- binomial/Poisson models with non-integer data
+- failing to specify `family` (default Gaussian: $\to$ linear model);
+using `glm()` for linear models (unnecessary)
+- predictions on effect scale
+- using $(k,N)$ rather than $(k,N-k)$ with `family=binomial`
+- back-transforming SEs rather than CIs
+- neglecting overdispersion
+- Poisson for *underdispersed* responses
+- equating negative binomial with binomial rather than Poisson
+- worrying about overdispersion unnecessarily (binary/Gamma)
+- ignoring random effects
+
+# Example
+
+## AIDS (Australia: Dobson & Barnett)
+
+```{r nowecho,echo=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+```{r aids_ex_1,fig.width=10,fig.height=5}
+aids <- read.csv("../data/aids.csv")
+## set up time variable
+aids <- transform(aids, date=year+(quarter-1)/4)
+print(gg0 <- ggplot(aids,aes(date,cases))+geom_point())
+```
+
+## Easy GLMs with ggplot
+
+```{r ggplot1,fig.width=10,fig.height=5}
+print(gg1 <- gg0 + geom_smooth(method="glm",colour="red",
+          method.args=list(family="quasipoisson")))
+```
+
+## Equivalent code
+
+```{r aids_model_1}
+g1 <- glm(cases~date,aids,family=quasipoisson(link="log"))
+summary(g1)
+```
+
+Note `NA` value for AIC ...
+
+## Diagnostics (`plot(g1)`)
+
+```{r diagplot,echo=FALSE,fig.width=8,fig.height=8}
+op <- par(mfrow=c(2,2)) ## set 2x2 grid of plots
+plot(g1) ## ugh
+par(op)  ## restore parameter settings
+```
+
+```{r acf1}
+acf(residuals(g1)) ## check autocorrelation
+```
+
+## Diagnostics: the Big Lie
+
+- null-hypothesis testing of assumptions is iffy
+    - never reject for small data sets
+    - always reject for large data sets
+- but how do you know how large a problem to worry about?
+- gold standard: make your model more complex to show you didn't need to worry in the first place
+
+## ggplot: check out quadratic model
+
+```{r ggplot2,fig.width=10,fig.height=5}
+print(gg2 <- gg1+geom_smooth(method="glm",formula=y~poly(x,2),
+            method.args=list(family="quasipoisson")))
+```
+
+## on log scale
+
+```{r ggplot3,fig.width=10,fig.height=5}
+print(gg2+scale_y_log10())
+```
+
+## improved model
+
+``` {r aids_model_2}
+g2 <- update(g1,.~poly(date,2))
+summary(g2)
+anova(g1,g2,test="F") ## for quasi-models specifically
+```
+
+## new diagnostics
+
+```{r aids_test,echo=FALSE,fig.width=8,fig.height=8}
+op <- par(mfrow=c(2,2)) ## set 2x2 grid of plots
+plot(g2) ## better
+par(op)  ## restore parameter settings
+```
+
+## autocorrelation function
+
+```{r acf2}
+acf(residuals(g2)) ## check autocorrelation
+```
+
+Also see `nlme::ACF` for ACFs of grouped data ...
+
+## exercise
+
+- pick a data set (from the [course data sets](../data/datasets.html) if you like; OK to ignore grouping/clustering for now)
+- decide on a family and set of predictors
+- decide on predictors
+- fit a model
+- look at diagnostics
+- fix the problems?
+
+What did you learn? Where did you get stuck?
+
+## References
+

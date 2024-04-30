@@ -5,21 +5,13 @@
    * `renv` snapshot?
    * recommend RStudio/Posit cloud? WebR?
 * poll to registrants
-* schedule details
-   * 9-9:45 overview, LMMs
-   * 9:45-10:15 **break**
-   * 10:15-10:45 LMMs, lab
-   * 10:45-11:15 **coffee?**
-   * 11:15-noon GLMMs
-   * noon - 1 **lunch**
-   * 1-1:45 GLMM lab
-   * 1:45 - 2 **break**
-   * 2-2:45 
-   * 2:45-3:15 coffee
-   * 3:15-4
-   * 4-4:15
-   * 4:15-5 open session/Q&A?
-   
+* intro
+   * new 'universe' picture?
+
+### glitches/troubleshooting
+
+* sjPlot: how to get multiple terms?
+
 ### topics
 
 * basic LMMs

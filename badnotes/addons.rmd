@@ -1,0 +1,194 @@
+---
+title: "additional topics"
+author: Ben Bolker
+bibliography: "../glmm.bib"
+date: "`r format(Sys.time(), '%d %B %Y ')`"
+---
+
+![cc](pix/cc-attrib-nc.png)
+Licensed under the 
+[Creative Commons attribution-noncommercial license](http://creativecommons.org/licenses/by-nc/3.0/).
+Please share \& remix noncommercially, mentioning its origin.
+
+```{r pkgs,message=FALSE}
+library(lme4)
+library(nlme)
+library(dotwhisker)
+library(broom)
+library(broom.mixed)
+library(cowplot)
+library(r2glmm)
+library(glmmTMB)
+knitr::opts_knit$set(root.dir = here::here())
+```
+
+## Effect size measures
+
+- Distinction between unscaled effect sizes (*magnitude*) and scaled effect sizes [e.g. Cohen's $d$] (*clarity*)
+- Recommend: get comparable effect sizes by scaling continuous predictors by their standard deviation as recommended by @schielzeth_simple_2010 (or by 2SD as suggested by @gelman_scaling_2008). (*Or* use log-transformed predictors.) (`dotwhisker::dwplot()` scales parameters by 2SD by default.)
+- R-squared measures:
+     - generalized linear models: have to decide whether to include sampling variance or not, and what measure of variability to use 
+     - mixed models: have to decide how to account for/include variability at different levels (*marginal*: population-level. *conditional*: taking random effects into account)
+- overall metrics like $\eta^2$:
+
+> Unfortunately this is currently not possible.
+>I believe that most of these problems are also discussed in a recent Psych Methods paper [@rights_quantifying_2018] ... The fact that calculating a global measure of model fit (such as R2) is already riddled with complications and that no simple single number can be found, should be a hint that doing so for a subset of the model parameters (i.e., main-effects or interactions) is even more difficult. Given this, I would not recommend to try finding a measure of standardized effect sizes for mixed models. [@singmann_compute_2018]
+
+- see the relevant section of the [glmm FAQ](http://bbolker.github.io/mixedmodels-misc/glmmFAQ.html#how-do-i-compute-a-coefficient-of-determination-r2-or-an-analogue-for-glmms) for packages etc. ...
+
+Example: using `r2glmm::r2beta()` package with `method="nsj"` [@nakagawa_general_2013;@johnson_extension_2014; @nakagawa_coefficient_2017] (also `MuMIn::r.squaredGLMM()`, ...)
+
+```{r grsq}
+library(lme4)
+load("data/gopherdat2.RData")
+Gdat <- transform(Gdat,fYear=factor(year))
+gmod_lme4_L <- glmer(shells~prev+fYear+(1|Site),
+                     offset=log(Area),
+                     family=poisson,data=Gdat,
+                     control=glmerControl(optimizer="bobyqa",
+                                          check.conv.grad=.makeCC("warning",0.05)))
+r2beta(gmod_lme4_L,method="nsj")
+piecewiseSEM::rsquared(gmod_lme4_L)
+MuMIn::r.squaredGLMM(gmod_lme4_L)
+```
+
+```{r dwplot1,echo=FALSE,fig.width=10}
+## convenience function; dwplot with ref line and title
+tfun <- function(title="",by_2sd=TRUE) {
+    (dotwhisker::dwplot(gmod_lme4_L,effect="fixed",by_2sd=by_2sd)
+        + ggtitle(title)
+        + geom_vline(xintercept=0,lty=2)
+    )
+}
+plot_grid(tfun("unstandardized\ndwplot(...,by_2sd=FALSE)",FALSE),
+          tfun("standardized (default)\ndwplot(by_2sd=TRUE)"))
+```
+
+## Graphical presentation of models
+
+- `dotwhisker::dwplot()`
+- `emmeans`
+- `effects`
+- `sjPlot`
+
+```{r owls_fit}
+Owls <- transform(Owls, Nest=reorder(Nest,SiblingNegotiation),
+                  logBroodSize = log(BroodSize))
+owls_nb1 <- glmmTMB(SiblingNegotiation ~ FoodTreatment*SexParent*ArrivalTime+
+                        (1|Nest)+offset(logBroodSize),
+                    family = nbinom1, zi = ~1, data=Owls)
+```
+
+```{r owls_dwplot}
+dotwhisker::dwplot(owls_nb1,effects="fixed", by_2sd=TRUE)+
+    geom_vline(xintercept=0,lty=2)
+```
+
+```{r owls_sjPlot,eval = FALSE}
+## FIXME
+s1 <- sjPlot::plot_model(owls_nb1, type="pred", title="")
+s1$Nest <- s1$Nest + coord_flip()
+s1$BroodSize <- NULL
+sjPlot::plot_grid(s1)
+```
+
+```{r effectsplot}
+library(effects)
+plot(allEffects(owls_nb1))
+```
+
+```{r emmeansplot}
+library(emmeans)
+plot(emtrends(owls_nb1, ~SexParent|FoodTreatment, var="ArrivalTime"))
+plot(emmeans(owls_nb1, ~SexParent|FoodTreatment, at=list(ArrivalTime=23)))
+```
+
+## Prediction
+
+A quick-and-dirty approach to prediction (fixed-effect variability only):
+
+```{r predvar}
+## make prediction data frame
+newdat <- with(Owls,
+               expand.grid(SexParent=levels(SexParent),
+                           FoodTreatment=levels(FoodTreatment),
+                           ArrivalTime=seq(min(ArrivalTime),
+                                           max(ArrivalTime),length=31),
+                           BroodSize=mean(BroodSize)))
+                           
+## design matrix (fixed effects)
+mm <- model.matrix(delete.response(terms(owls_nb1)),newdat)
+## linear predictor
+newdat$pred1 <- drop(mm %*% fixef(owls_nb1)$cond)
+predvar <- diag(mm %*% vcov(owls_nb1)$cond %*% t(mm))
+newdat$SE <- sqrt(predvar)
+linkinv <- family(owls_nb1)$linkinv
+newdat$lwr <- with(newdat,linkinv(pred1-2*SE))
+newdat$upr <- with(newdat,linkinv(pred1+2*SE))
+newdat$SiblingNegotiation <- linkinv(newdat$pred1)
+```
+
+```{r try_bootmer, eval=FALSE}
+newdat$Nest <- NA
+newdat$BroodSize <- 1
+predfun <- function(m) predict(m,data=newdat)
+bb <- bootMer(owls_nb1, FUN=predfun, nsim=100)
+## ugh ...
+refit(owls_nb1,simulate(owls_nb1))
+```
+## List of possible topics
+
+- effect size measures/$R^2$
+- type III sums of squares (mostly philosophical)
+- zero-inflation
+- temporal autocorrelation
+
+## type III sums of squares
+
+There is a long-standing argument about the *principle of marginality*: when does it make sense to interpret/test the significance of a main effect in a model where that effect is also involved in an interaction?
+
+- main effect parameter value/significance is always evaluated **for a particular value of all of the other parameters**
+- when the interaction is present, that implies that the value/significance changes depending on where you test it.
+- for an interaction with a continuous variable, the parameter will always be significant *eventually*
+- the "average" condition might not make biological sense (what is halfway between male and female?)
+- if marginality is violated, parameter effects/SSQ depend on how the model is parameterized/where the baseline (zero value) of each parameter lies
+
+**the bottom line**
+
+- need to choose a *sensible* "model center" [@schielzeth_simple_2010]
+- center continuous variables by their mean, or by the minimum, or some sensible reference point
+- center factor variables by using *sum-to-zero* contrasts (weights equally across levels), *or* see "Weights" in `?emmeans::emmeans`
+- type-3 ANOVAs are available from `lmerTest`, `car::Anova`, `afex` ...
+
+    
+## Temporal correlation
+
+- Easier than spatial correlation!
+- Diagnose (without trying to incorporate it in the model) via `nlme::ACF`
+- use `correlation=` argument in `lme` or `MASS::glmmPQL`
+- temporal correlation options in: `glmmTMB`, `brms`, `MCMCglmm`, `INLA` ...
+
+```{r acf1}
+m1 <- lme(Reaction~Days,
+          random=~Days|Subject,
+          sleepstudy)
+plot(ACF(m1),alpha=0.05)
+## this appears to fit, but makes the intercept/slope model singular
+m1A <- update(m1,
+              correlation=corAR1(),
+              control=lmeControl(opt="optim"))
+intervals(m1A)
+plot(ACF(m1A,resType="normalized"),alpha=0.05)
+```
+
+## Spatial correlation
+
+- use smooth terms (see E. Gonzalez's course ...)
+- `glmmPQL`, `spaMM`, `INLA`, ... see @dormann_methods_2007 (now a bit out of date)
+
+## Multivariate models
+
+- via implicit melting: `MCMCglmm`
+- via melting: `lme4` etc.
+
+## References

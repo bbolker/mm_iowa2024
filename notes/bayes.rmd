@@ -1,0 +1,236 @@
+---
+title: "Bayesian computational mixed models in R"
+author: Ben Bolker
+bibliography: "../glmm.bib"
+date: "`r format(Sys.time(), '%d %B %Y ')`"
+---
+
+![cc](pix/cc-attrib-nc.png)
+Licensed under the 
+[Creative Commons attribution-noncommercial license](http://creativecommons.org/licenses/by-nc/3.0/).
+Please share \& remix noncommercially, mentioning its origin.
+
+## Why Bayes?
+
+- philosophically satisfying
+- addresses model complexity problems  
+(use regularizing or truly informative priors)
+- accounts for all levels of uncertainty
+- makes post-modeling inference easy
+
+## Basic Bayes
+
+Posterior probability $\propto$ likelihood $\times$ prior
+
+```{r bayesplot1,echo=FALSE}
+data("ReedfrogPred",package="emdbook")
+x = subset(ReedfrogPred,pred=="pred" & density==10 & size=="small")
+k = x$surv
+op=par(lwd=2,bty="l",las=1,cex=1.5)
+curve(dbeta(x,shape1=sum(k)+1,shape2=40-sum(k)+1),
+      xlab="Predation probability\nper capita",
+      ylab="Probability density",
+      from=0,to=1,ylim=c(0,13))
+curve(dbeta(x,shape1=sum(k),shape2=40-sum(k)),
+      add=TRUE,lwd=3)
+curve(dbeta(x,shape1=1,shape2=1),col="darkgray",add=TRUE,
+      type="s")
+curve(dbeta(x,shape1=121,shape2=81),
+      add=TRUE,lty=2,col="darkgray")
+curve(dbeta(x,shape1=151,shape2=91),
+      add=TRUE,lty=2,n=200)
+tlocs <- list(x=c(0.44,0.13,0.82,0.75,0.95),
+              y=c(10,3.1,10.8,8,5.9))
+text(tlocs$x,tlocs$y,c("prior\n(121,81)",
+                       "prior\n(1,1)",
+                       "posterior\n(151,111)",
+                       "posterior\n(31,11)",
+                       "scaled\nlikelihood"),
+     cex=0.6)
+alocs <- list(x=c(0.151,0.464,0.734,0.720,0.924,
+                  0.18, 0.547,0.656,0.725,0.843),
+              y=c(2.3,9.047,10.806,7.241,4.833,
+                  1.02,7.195,9.973,5.898,3.212))
+arrows(alocs$x[1:5],alocs$y[1:5],alocs$x[6:10],alocs$y[6:10],
+       angle=15,col=rep(c("darkgray","black"),c(2,3)))
+par(op)
+```
+
+```{r bayes_prior_unif,echo=FALSE}
+op <- par(cex=1.5,las=1,bty="l",lwd=2,yaxs="i")
+gcols <- gray(c(0.2,0.8))
+b1 <- barplot(t(matrix(c(1/3,1/3,1/3,1/4,1/4,1/2),ncol=2)),beside=TRUE,
+              xlab="Predator",ylab="Probability",space=c(0.2,2),
+              col=gcols,yaxs="i")
+axis(side=1,at=colMeans(b1),c("raccoon","squirrel","snake"))
+segments(b1[1,1],0.4,b1[2,2],0.4)
+text((b1[1,1]+b1[2,2])/2,0.45,"mammalian")
+par(xpd=NA)
+legend(2,0.57,c("by species","by group"),
+       ncol=2,fill=gcols,bty="n")
+par(op)
+```
+
+---
+
+```{r bayes_prior_unif_cont,echo=FALSE}
+minx <- 10
+maxx <- 100
+dx <- maxx-minx
+dlx <- log(maxx/minx)
+dlx10 <- log10(maxx/minx)
+xlim <- c(0,110)
+Lxlim <- c(9,110)
+op <- par(cex=2,las=1,bty="l",lwd=2,mfrow=c(1,2),
+          mar=c(5,4,3,0.5)+0.1,yaxs="i")
+curve(ifelse(x>minx & x<maxx,1/dx,0),from=xlim[1],to=xlim[2],
+      xlab="Mass",ylab="Probability density",ylim=c(0,0.04),main="linear scale",type="s",
+      cex.main=1.5,xlim=c(0,100),n=400,axes=FALSE)
+axis(side=1,at=c(10,100))
+axis(side=2,at=c(0,0.02,0.04))
+box()
+curve(ifelse(x>minx & x<maxx,1/x*1/dlx,0),from=xlim[1],to=xlim[2],
+      lty=2,n=400,add=TRUE)
+legend("topright",c("uniform","log-uniform"),lty=1:2)
+curve(ifelse(x>log(minx) & x<log(maxx),1/dlx,0),
+      from=log(Lxlim[1]),to=log(Lxlim[2]),
+            ylim=c(0,1.2),
+      xlab="Log mass",ylab="",axes=FALSE,lty=2,main="log scale",type="s",
+      cex.main=1.5,n=400)
+curve(ifelse(x>log(minx) & x<log(maxx),exp(x)/dx,0),from=log(Lxlim[1]),to=log(Lxlim[2]),
+      add=TRUE,n=400)
+axis(side=1,
+     at=log(c(10,100)),
+     labels = paste("log(",c(10,100),")",sep=""))
+axis(side=2,at=c(0,0.5,1))
+box()
+par(op)
+```
+
+## Priors, continued
+
+- continued debate over priors 
+- "uninformative" or "flat": probably not really
+- "conjugate": mathematically/computationally convenient
+- **regularizing** priors: neutral, but not completely uninformative
+     - keeps model from misbehaving
+	 - **informative** priors: non-neutral, real information [@Crome+1996,@McCarthy2007]
+- simple 'uninformative' priors for variances etc. might not be [@gelman_prior_2006]
+- uniform priors are simple but problematic [@carpenter_computational_2017]
+- remember, scale of parameter matters!
+
+```{r echo=FALSE,eval=FALSE}
+## faffing around with priors peaked near zero
+## invgamma is unstable/I don't really understand it properly
+f1 <- function(x,a=1.35) x*dt(x/a,df=3)
+f2 <- function(x) MCMCpack::dinvgamma(x,shape=1.05,scale=0.05)
+f3 <- function(x) dgamma(x,shape=1/20,scale=20)
+curve(f2,n=501)
+curve(f3,add=TRUE,col=2)
+mean(rinvgamma(1000000,shape=3,scale=1))
+i1 <- function(m,u=100) { integrate(m,lower=0, upper=u) }
+i2 <- function(m,u=100) { integrate(function(x) m(x)*x, lower=0, upper=u) }
+i1(f2)
+i2(f2)
+## mean = scale/(shape-1)
+## -> scale = (shape-1)*mean for alpha>1
+## https://www.johndcook.com/inverse_gamma.pdf
+## 
+```
+
+## typical neutral/regularizing priors
+
+- fixed-effect parameters  [@greenland_penalization_2015]
+    - typically Normal, mean 0, std dev 3--5 
+    - assume parameters are scaled or on log/logit scale
+	- Student-$t$/Cauchy allow heavier tails
+- variance parameters
+    - Gamma(small shape): typical but problematic
+    - Gamma(shape=2,$\lambda \to 0$): weakly regularizing [@chung_nondegenerate_2013] (`blme` package)
+- correlation matrices
+    - Wishart, inverse-Wishart: small shape parameters
+    - LKJ or "onion" priors [@lewandowski_generating_2009]: `eta>1` makes extreme correlations less likely
+
+## Sampling
+
+Almost all modern Bayesian methods depend on stochastic sampling schemes
+
+e.g.
+
+- *conjugate sampling*: for easy cases where we can derive the posterior distribution
+- *Gibbs sampling*: stepwise sampling of different model components
+- *Metropolis-Hastings*: choose *candidate distribution* and accept/reject
+- *Hamiltonian Monte Carlo*
+
+## Metropolis-Hastings
+
+- sampling parameter space
+- start at a point (set of parameter values) $A$
+    - pick a new point $B$ (from *candidate distribution*)
+    - evaluate $P$= prior $\times$ likelihood
+    - always accept if $P(B)$ better than $P(A)$
+	- if $B$ is worse, accept with probability $P(B)/P(A)$
+	- (extra term if candidate distribution is asymmetric)
+	- generally converges to posterior distribution
+
+## acceptance ratio
+
+- candidate distribution too big: lots of rejection
+- candidate distribution too small: lots of acceptance, but small moves
+- either problem leads to inefficient sampling, highly correlated chains
+- optimal acceptance $\approx 20\%$
+
+## Hamiltonian MC
+
+- start at a point
+- simulate a particle moving along the surface with *random* momentum
+- hard parts: finding the gradient, knowing when to stop ("No U-Turn Sampler")
+
+## Burn-in, adaptation and thinning
+
+- *burn-in*: wait for chain to travel from starting point to highest posterior density region
+- *adaptation*: use chain performance (acceptance/rejection) to tune candidate distribution
+- *thinning*: if chain is correlated, subsample (e.g. down to 1000 samples)
+
+## Multiple chains
+
+- Best way of assessing convergence
+- Can be run in parallel (different cores/machines)
+- Start at widely dispersed points (but workable)
+- Run until coverage of chains overlaps
+
+## Diagnostics: tests of convergence
+
+- Gelman-Rubin statistic (*potential scale reduction factor*: $R <  1.1$? 1.02?); needs multiple chains [@vats_revisiting_2018]
+- effective sample size ($>500$)
+- traceplot (should look like white noise)
+
+## Tackling fitting/convergence problems
+
+- strengthen priors (keep model from getting in trouble)
+- simplify model
+- reparameterize (?)
+- run the model for longer (and thin correspondingly)
+
+## Diagnostics: model adequacy
+
+- plots of predictions
+- posterior predictive distributions
+- parameter correlations: `pairs(fitted,gap=0,pch=".")`
+
+## Model goodness of fit (relative)
+
+- leave-one-out cross-validation (`loo`)
+- WAIC
+
+## Inference
+
+- samplers return a *matrix* of parameter values (values of each parameter for each sample)
+- Posterior medians (or means)
+- Quantile intervals (`quantile()`)
+     - or *highest posterior density* intervals: (`coda::HPDinterval`, `emdbook::HPDregion`)
+
+## Inference on functions of parameters
+
+- e.g. CIs on predictions
+- easy! compute whatever function you want 
