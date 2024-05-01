@@ -2,10 +2,11 @@
 title: "generalized linear mixed models"
 author: "Ben Bolker"
 bibliography: "../glmm.bib"
-csl: ../apa.csl
+csl: ../nature.csl
 output:
    ioslides_presentation
-       toc:true
+      toc:true
+link-citations: true   
 header-includes:
 - \usepackage{amsmath}
 - \usepackage{amssymbol}
@@ -49,6 +50,7 @@ img {
 
 ```{r knitr,include=FALSE}
 require("knitr")
+knitr::opts_knit$set(root.dir = here::here())
 knit_hooks$set(crop=hook_pdfcrop)
 ##opts_chunk$set(fig.width=5,fig.height=4,
 ##               out.width="0.6\\textwidth",
@@ -87,13 +89,15 @@ theme_set(theme_bw())
 
 ## a small corner of the universe
 
-![image](pix/models-glmm.png)
+```{r universe, out.width="700px"}
+include_graphics("pix/models-glmm.png")
+```
 
 ## Coral protection from seastars (*Culcita*) by symbionts [@mckeon_multiple_2012]
 
 ```{r culcita1,cache=TRUE,message=FALSE,warning=FALSE}
 ## Culcita fits
-stierdat <- read.csv("../data/culcitalogreg.csv")
+stierdat <- read.csv("data/culcitalogreg.csv")
 stierdat$ttt <- as.factor(stierdat$ttt) ## treatment should be a factor
 ## contrast matrix
 cmat <- matrix(c(0,1,1,1,0,1,-1,0,0,1,1,-2),ncol=3,
@@ -118,7 +122,7 @@ p <- with(m3,table(predation,ttt))
 
 
 ```{r culcita2,warning=FALSE,message=FALSE}
-load("../data/culcita.RData")
+load("data/culcita.RData")
 library(lme4)
 cmod1 <- glmer(predation~ttt+(1|block),data=culcita_dat,
                family=binomial,nAGQ=10)
@@ -180,7 +184,7 @@ par(op)
 ## Environmental stress: *Glycera* cell survival (D. Julian unpubl.)
 
 ```{r glycera}
-x <- read.csv("../data/Live-Dead Tabulated Counts.csv")
+x <- read.csv("data/Live-Dead Tabulated Counts.csv")
 ## utility function for factoring/renaming variables before
 ##  lattice plot
 rnfac <- function(dat,vars) {
@@ -252,7 +256,7 @@ trellis.par.set(theme=orig) ## restore settings
 ## FIXME: redo in ggplot2?  LOW PRIORITY
 ```
 
-## *Arabidopsis* response to fertilization & herbivory [@banta_comprehensive_2010]
+## simulated herbivory of *Arabidopsis* [@banta_comprehensive_2010]
 
 ```{r arabplot1,fig.width=7,fig.height=6}
 panel.stripplot2 <-
@@ -266,7 +270,7 @@ function (x, y, jitter.data = FALSE, factor = 0.5, amount = NULL,
         amount = amount, groups = groups, horizontal = horizontal, 
         ...)
 }
-load("../data/Banta.RData")
+load("data/Banta.RData")
 trellis.par.set(list(fontsize=list(text=20)))
 stripplot(jltf ~ amd|nutrient, 
                 data=within(dat.tf,jltf <-jitter(log(total.fruits+1),
@@ -281,14 +285,14 @@ stripplot(jltf ~ amd|nutrient,
 ## Coral demography (J.-S. White unpubl.)
 
 ```{r coral_demog,warning=FALSE}
-L <- load("../data/m.acr.jagsout.RData")
-L2 <- load("../data/m.acr.lme4out.RData")
-L3 <- load("../data/demog.mort.18apr.RData")
-source("../R/demog_mort_funs.R")
+L <- load("data/m.acr.jagsout.RData")
+L2 <- load("data/m.acr.lme4out.RData")
+L3 <- load("data/demog.mort.18apr.RData")
+source("R/demog_mort_funs.R")
 plotfun(j.red2,m.acr.nofr,drop.cols=c(4,8))
 ```
 
-## Simple mixed models<br>(scalar, intercept-only)
+## Intercept random effects
 
 $$
 \begin{split}
@@ -308,14 +312,14 @@ $$
 \begin{split}
 y_{ij} & = \beta_0 + \beta_1 x_{ij} + \epsilon_{0,ij} + \epsilon_{1,j} +
 \epsilon_{2,j} x_{ij} \\
-& = (\beta_0 + \epsilon_{1,j}) + (\beta_1 + \epsilon_{2,j}) x_{ij})  \\
+& = (\beta_0 + \epsilon_{1,j}) + (\beta_1 + \epsilon_{2,j}) x_{ij} + \epsilon_{0,ij}  \\
 \epsilon_{0,ij} & \sim \textrm{Normal}(0,\sigma_0^2) \\
 \{\epsilon_{1,j}, \epsilon_{2,j}\} & \sim \textrm{MVN}(0,\Sigma)
 \end{split}
 $$
 
 - variation in the *effect* of a treatment or covariate across groups
-- variation in intercept, slope allowed to be correlated
+- estimate the correlation between the intercept and slope
 
 ## General definition
 
@@ -336,64 +340,58 @@ $$
 
 A method for …
 
--   accounting for among-individual, within-block correlation
+-   accounting for correlations among observations within *clusters* ("levels of the grouping variable")
 -   compromising between\
-    *complete pooling* (no among-block variance)\
-     and *fixed effects* (large among-block variance)
+    *complete pooling* (no among-cluster variance)\
+     and *fixed effects* (large among-cluster variance)
 -   handling levels selected at random from a larger population
 -   sharing information among levels (*shrinkage
     estimation*)
--   estimating variability among levels
--   allowing predictions for unmeasured levels
+-   estimating variability among clusters
+-   allowing predictions for unmeasured clusters
 
 ## Random-effect myths
 
--   levels of random effects must always be sampled at random
+-   clusters must always be sampled at random
 -   a complete sample cannot be treated as a random effect
 -   random effects are always a *nuisance variable*
 -   nothing can be said about the predictions of a random effect
 -   you should always use a random effect no matter how few levels you
 have
 
-## Reasons for random effects (inferential/philosophical)
+## Why use random effects? (inferential/philosophical)
 
-- **don't** want to
-     - test hypotheses about differences between responses at particular levels of
-the grouping variable;
 - **do** want to
      - quantify variation among groups
      - make predictions about unobserved groups
-- have levels that are randomly sampled from/representative of a larger population (*exchangeable*)
+- have (randomly) sampled clusters from a larger population 
+- have clusters that are **exchangeable**
+- **don't** want to
+     - test hypotheses about differences between particular clusters
 
-
-## Reasons for random effects (practical)
+## Why use random effects? (practical) [@Crawley2002; @gelman_analysis_2005]
 
 - want to combine information across groups
-- have variation in information per level (number of samples or noisiness);
+- have variation in information per cluster (number of samples or noisiness);
 - have a categorical predictor that is a nuisance variable (i.e., it is not of direct interest, but should be controlled for).
 - have more than 5-6 groups, or regularizing/using priors (otherwise, use fixed)
 
-See also @Crawley2002; @gelman_analysis_2005
-
 ## Avoiding MM
 
-* average: for *nested* LMMs (when uninterested in within-group variation) [@murtaugh_simplicity_2007] 
-* use fixed effects (or two-stage models) instead of random effects when
-     * many samples per block (shrinkage unimportant)
-     * few blocks (little advantage; bad variance estimates)
+* for *nested* designs: compute cluster means [@murtaugh_simplicity_2007] 
+* use fixed effects (or *two-stage models*) when there are
+     * many samples per cluster
+     * few clusters
 
 Estimation
 ==========
-
-Overview
---------
 
 ## Maximum likelihood estimation
 
 -   Best fit is a compromise between two components\
     (consistency of data with fixed effects and conditional modes;
     consistency of random effect with RE distribution)
-	-   Goodness-of-fit *integrates* over conditional modes
+
 
 ## ...
 
@@ -411,7 +409,7 @@ ggplot(dd,aes(x=f,y=y))+geom_point()+
                       panel.grid.minor=element_blank())
 ```
 
-## Shrinkage: *Arabidopsis* conditional modes
+## Shrinkage: *Arabidopsis* example
 
 ```{r arabshrink,fig.height=6,fig.width=8}
 z<- subset(dat.tf,amd=="clipped" & nutrient=="1")
@@ -497,24 +495,22 @@ xyplot(Reaction ~ Days, data=sleepstudy,
 })
 ```
 
-Methods
--------
+# Methods
+	
+## Estimation
 
-## Estimation methods
-
+- the hard part is that we need to compute an integral
 - deterministic
-    - various approximate integrals [@breslow_whither_2004]
-    - penalized quasi-likelihood, Laplace, Gauss-Hermite quadrature, … [@biswas2015];  
-best methods needed for large variance, small clusters
-    -   flexibility and speed vs. accuracy
-- stochastic
-- stochastic (Monte Carlo): frequentist and Bayesian
-    - [@booth_maximizing_1999; @sung_monte_2007; @ponciano_hierarchical_2009]
-    -   usually slower but flexible and accurate
+    - various approximate integrals [@breslow_whither_2004]:  
+penalized quasi-likelihood, Laplace, Gauss-Hermite quadrature, … [@biswas2015];  
+    - more care needed for large variance, small clusters (e.g. binary data)
+    - flexibility and speed vs. accuracy
+- stochastic (Monte Carlo): frequentist and Bayesian [@booth_maximizing_1999; @sung_monte_2007; @ponciano_hierarchical_2009]
+    - (much) slower but flexible and accurate
 
 ## Estimation: *Culcita* [@mckeon_multiple_2012]
 
-```{r stierfig2,warning=FALSE,fig.width=8,fig.height=8}
+```{r stierfig2,warning=FALSE, out.width = "700px"}
 library(coefplot2)
 cvec <- c("purple","magenta","blue","black","darkgreen")
 mnames <- c("GLM (fixed)","GLM (pooled)","PQL","Laplace","AGQ")
@@ -536,28 +532,17 @@ text(rep(1,5),seq(1.6,by=-0.18,length.out=5),
 
 ## Wald tests
 
--   typical results of `summary()`
--   exact for ANOVA, regression:  
-approximation for GLM(M)s
--   fast
--   approximation is sometimes awful (Hauck-Donner effect)
+- typical results of `summary()`
+- exact for linear models: approximate for (G)LMMs
+- fast
+- approximation sometimes awful (*complete separation*)
 
 ## Likelihood ratio tests
 
--   better than Wald, but still have two problems:
--   “denominator degrees of freedom”  
-(when estimating scale)
-    -   finite-size issues for GLM(M)s: Bartlett corrections
-    -   Kenward-Roger correction? [@stroup_rethinking_2014]
--   Profile confidence intervals: expensive/fragile
-
-## finite-size p-values??
-
-- hope that min grps > 42
-- guess denominator DF from classic design ([R code](../R/calcDenDF.R))
-- conservative: take minimum number of groups - 1
-- Satterthwaite/Kenward-Roger (`lmerTest`, LMMs only)
-- parametric bootstrap (`pbkrtest`)
+- better than Wald, but two problems:
+- “denominator degrees of freedom”
+    - e.g. Kenward-Roger correction [@stroup_rethinking_2014]
+- Profile confidence intervals: slow
 
 ## Parametric bootstrapping
 

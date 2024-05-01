@@ -5,8 +5,6 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 
 **approximate and subject to change!**
 
-## Monday: graphics, GLM reminder, GLMM overview, inference/philosophy
-
 * 9-9:45 overview, LMMs
 * 9:45-10:15 **break**
 * 10:15-10:45 LMMs, lab
