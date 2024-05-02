@@ -11,9 +11,10 @@ Please share \& remix noncommercially, mentioning its origin.
 
 ## Preliminaries
 
-```{r setup,echo=FALSE,message=FALSE}
+```{r setup, include = FALSE, message = FALSE}
 ## ignore this stuff ...
 library("knitr")
+knitr::opts_knit$set(root.dir = here::here())
 opts_chunk$set(fig.align="center",
                fig.width=5,fig.height=5,tidy=FALSE,message=FALSE)
 knit_hooks$set(basefig=function(before, options, envir) {
@@ -24,10 +25,11 @@ knit_hooks$set(basefig=function(before, options, envir) {
 ```
 
 Load packages:
-```{r pkgs, warning=FALSE}
+```{r pkgs, warning=FALSE, message = FALSE}
 ## modeling packages
 library("lme4")     ## basic (G)LMMs
 library("nlme")     ## more LMMs
+library("glmmTMB")
 library("afex")     ## helper functions
 library("emmeans")
 
@@ -39,7 +41,6 @@ library("lattice")
 library("dotwhisker")  ## coefficient plots
 
 ## data manipulation
-library("broom")
 library("broom.mixed")
 ```
 
@@ -58,7 +59,7 @@ Data from Toby Marthews, [r-sig-mixed-models mailing list](http://tolstoy.newcas
 
 ```{r starling1,fig.height=4,fig.width=7}
 ## cosmetic tweaks
-load("../data/starling.RData")   ## loads "dataf"
+load("data/starling.RData")   ## loads "dataf"
 ggplot(dataf,aes(x=mnth,y=stmass))+
   geom_point()+
   geom_line(aes(group=subject))+  ## connect subjects with a line
@@ -66,35 +67,46 @@ ggplot(dataf,aes(x=mnth,y=stmass))+
   zero_margin                         ## squash together
 ```
 
-You should also try
+<details>
+You could also try
 ```{r altplot,fig.keep="none"}
 ggplot(dataf,aes(mnth,stmass,colour=roostsitu))+
     geom_point()+
     geom_line(aes(group=subject))
 ```
 
-for comparison: what are the tradeoffs?
-
 Overkill for this data set, but sometimes it can be useful to put every individual in its own facet:
 
 ```{r altplot2,fig.keep="none"}
 ## reorder individuals by magnitude of difference
-dataf <- transform(dataf,subject=reorder(subject,stmass,FUN=diff))
+dataf <- transform(dataf, subject=reorder(subject,stmass,FUN=diff))
 ggplot(dataf,aes(mnth,stmass,colour=roostsitu,group=subject))+
     geom_point()+geom_line()+facet_wrap(~subject)+
     zero_margin
 ```
+</details>
 
 It's pretty obvious that the starting (November) mass varies among roost situations (tree/nest-box/etc.), and that mass increases from November to January, but we might like to know if the slopes differ among situations. That means our fixed effects would be `~roostsitu*mnth`, with our attention focused on the `roostsitu:mnth` (interaction) term.  For random effects, we can allow both intercept (obviously) and slope (maybe) to vary among individuals, via `(1+mnth|subject)` or equivalent ... in this case, because measurements are only taken in two months, we can also write the random term as `(1|subject/mnth)`.
 
 **However**, it turns out that we can't actually estimate random slopes for this model, because every individual is only measured twice. That means that the variance in the slopes would be completely confounded with the residual variance.
 
-If we fit this with lme4
+If we fit this with `lme4`:
 ```{r lmerfit1,error=TRUE}
-lme1 <- lmer(stmass~mnth*roostsitu+(1|subject/mnth),data=dataf)
+lmer1 <- lmer(stmass~mnth*roostsitu+(1|subject/mnth),data=dataf)
 ```
 
 We get an error. We *can* actually do this (`lmerControl(check.nobs.vs.nlev="ignore")`; see `?lmerControl` for details), and it will actually work, but it will pick an arbitrary division between the residual variance and the `month:subject` variance.
+
+<details>
+In principle we can do this model with `glmmTMB`, by dropping the residual variance term (for technical reasons, this isn't possible in `lme4`):
+
+```{r glmmTMB1}
+glmmTMB1 <- glmmTMB(stmass~mnth*roostsitu+(1|subject/mnth),
+                    data = dataf,
+					## REML = TRUE,  ## figure out why this gives a npd Hessian ...
+					dispformula = ~0)
+```
+</details>
 
 But now let's forget about including the (unidentifiable) random slopes.
 ```{r lmer2}
@@ -147,6 +159,29 @@ cat(lmer2out[17:25],sep="\n")
 
 ## Diagnostic plots
 
+`performance::check_model()` gives a relatively complete set of model diagnostics.
+
+```{r check_model, fig.width=12, fig.height=12}
+performance::check_model(lmer2)
+```
+
+- linearity is automatically satisfied when all predictors are categorical and all interactions are included
+- similarly, in a balanced factorial design all observations have the same leverage
+- I usually ignore the collinearity diagnostics
+- residuals are slightly light-tailed, not a cause for concern
+- random effect estimates (BLUPs/conditional modes) look Normal
+
+`DHARMa` (diagnostics via simulated residuals: usually unnecessary for LMMs):
+
+```{r check_DHARMa, fig.width = 8, fig.height = 5}
+sr2 <- DHARMa::simulateResiduals(lmer2)
+plot(sr2)
+```
+
+<details>
+
+`lme4` also has some built-in plotting capabilities (*skipped* during live-coding session)
+
 Basic diagnostic plots: fitted vs. residuals, coloured according to the `roostsitu` variable (`col=dataf$roostsitu`), point type according to month (`pch=`).
 
 ```{r lmediag}
@@ -162,7 +197,9 @@ to change the default labels, and `idLabels=~.obs` to label by observation numbe
 You can get a scale-location plot by specifying
 
 ```{r lmediag2,fig.keep="none"}
-plot(lmer2,sqrt(abs(residuals(.))) ~ fitted(.),type=c("p","smooth"))
+## FIXME: why doesn't this match performance scale-resid plot?
+ss <- residuals(lmer2)/(1-hatvalues(lmer2))
+xyplot(sqrt(abs(ss)) ~ fitted(lmer2),type=c("p","smooth"))
 ```
 
 Adding the smoothed line is helpful because uneven sampling can
@@ -202,7 +239,7 @@ ggplot(aa,aes(roostsitu,.resid))+
 Plot random effects to look for outliers:
 
 ```{r ranef}
-dotplot(ranef(lmer2,condVar=TRUE))
+dotplot(ranef(lmer2))
 ```
 
 Or with `tidy` + `ggplot`:
@@ -217,27 +254,33 @@ ggplot(tt,aes(level,estimate))+
 
 In general, try plotting residuals and $\sqrt{\textrm{abs}(r)}$ both as a
 function of the fitted values and as a function of particularly important predictors.
+</details>
 
 - if you have your own example data set handy that you can write a simple model for, run these diagnostics and interpret them
 - the `hatvalues()` function can also be useful (although all hat values are identical here)
 - also see the `influence.ME` package.  Try `plot(influence(lmer2,group="subject"))` and interpret the results ...
 
+<details>
 ### Try it yourself: tundra carbon example
 
 - Download the file `tundra_agg.rda` (from the data directory given above). The `GS.NEE` records the net ecosystem exchange (in grams of carbon/m^2/year) in a given year and site; `cYear` is a centered version of the year; `n` records the number of observations taken in a given site/year (the NEE value given is an average of these observations).
 - Draw some plots (with `ggplot2` if you can, otherwise with base R graphics) to inspect the data
 - We are interested in the change in NEE over time (i.e., a random-slopes model). Run an `lmer` fit (note this data set does not have the issue of the starling data set), draw some preliminary conclusions, and inspect the plot diagnostics.
+</details>
 
 ## Inference
 
-One good way to assess the results of a model fit is to look at a coefficient plot: `dotwhisker::dwplot()` does this. *Note that it automatically scales all coefficients by 2SD; use `by_2sd=FALSE` to leave coefficients unscaled*
+**Never start doing inference until you're finished with diagnostics/satisfied with model fit**
+
+The coefficient plot is a good first look: `dotwhisker::dwplot()` does this. Here we use `by_2sd=TRUE` to scale coefficients by 2x the SD of the predictor variable ...
 
 ```{r coefplot}
-dotwhisker::dwplot(lmer2)+geom_vline(xintercept=0,lty=2)
+dotwhisker::dwplot(lmer2, by_2sd=TRUE, effects = "fixed")+geom_vline(xintercept=0,lty=2)
 ```
 
-(Note that the intercept is automatically dropped; this is usually the right choice. Use `show_intercept=TRUE` to have the intercept included.) For more complicated coefficient plots, you can use the combination of the `broom.mixed` package to get the parameters in a useful form and `dwplot` to draw the plot.
+(Note that the intercept is automatically dropped; this is usually the right choice. Use `show_intercept=TRUE` to have the intercept included.) For more complicated coefficient plots, you can use `broom.mixed::tidy()` to get the parameters in a useful form and `dwplot`, or `ggplot2` with `geom_pointrange()`, to draw the plot.
 
+<details>
 Stop and explain to yourself what these parameters mean.  If you're not sure, try resetting the base level of the `roostsitu` factor: `dataf2 <- transform(dataf,roostsitu=relevel(roostsitu,ref="other"))`, predict what will happen to the results, and re-run the analysis.)
 
 **Exercise**: This is actually a slightly trivial example, because there are only two measurements for each individual. Thus we can actually analyze the slopes and get the same answers by using a paired analysis, i.e. by computing the mass *difference* in subjects and then analyzing with a single-level linear model. (In the simplest case this would reduce to a paired $t$-test, but in this case it is a 1-way ANOVA on `roostsitu`.
@@ -265,6 +308,7 @@ As you can see, `geom_dotplot()` adds a horizontal dot-plot for each group
 ```{r lmcheat,echo=FALSE,results="hide"}
 summary(lm(stmass~roostsitu,dataf2))
 ```
+</details>
 
 ## Inference part 2
 
@@ -273,12 +317,13 @@ The default confidence intervals shown by `dwplot()` are just Normal
 confidence intervals (not taking into account any of the effects that
 make these approximate for mixed models).
 
-We can get profile confidence intervals via `confint(lmer2)`,
-but the confidence intervals are almost identical to those
-from `confint(lmer2,method="Wald")` (the default shown by
-`dwplot()`.
+We can get profile confidence intervals via `confint(lmer2)` or `tidy(lmer2, conf.method = "profile")`; in this example the profile confidence intervals are almost identical to  the Wald intervals (`dwplot()`'s default).
+
+<details>
 
 (Insert long discussion of degrees of freedom and $p$-values here.)
+
+</details>
 
 We can use `lmerTest` or `afex::mixed` (which both wrap functions
 from the `pbkrtest` package) to get "denominator degrees of freedom"/$p$-values.
@@ -287,8 +332,8 @@ from the `pbkrtest` package) to get "denominator degrees of freedom"/$p$-values.
 and modifies the `summary()` function:
 ```{r lmertest,warning=FALSE}
 library("lmerTest")
+## or: as(lmer2, "lmerModLmerTest")
 lmer2R <- lmer(stmass~mnth*roostsitu+(1|subject),data=dataf)
-detach("package:lmerTest")
 ```
 Capturing just the coefficient table from `summary(lmer2R)`:
 ```{r lmer2Rsum_out,echo=FALSE}
@@ -301,15 +346,17 @@ degrees of freedom.  You can also use `summary(lmer2R,ddf="Kenward-Roger")`
 to get a slightly more accurate (and slower) estimate, but in this case
 the answers are basically identical.
 
-Can use the algorithm that `lme` uses:
+<details>
+
+For simple cases we can use (a slightly improved version of) the level-counting algorithm from `lme`.
 ```{r calcDenDF}
-source("../R/calcDenDF.R")
+source("R/calcDenDF.R")
 calcDenDF(~mnth*roostsitu,data=dataf,random=~1|subject)
 ```
+</details>
 
 We conclude that the interactions are not doing much,
 but there's definitely an effect of the roosts and months.
-This agrees with the picture from `dwplot` (above).
 
 However, we probably want to test the overall effect of the interactions, not the individual levels.
 Here are the type II (sequential) ANOVA results:
@@ -318,7 +365,7 @@ anova(lmer2)
 ```
 
 If we want to evaluate the *marginal* sums of squares, i.e. dropping one term at a time from the model, when there are interactions,
-we usually want to change the model to use sum-to-zero contrasts: 
+we usually need to change the model to use sum-to-zero contrasts: 
 
 ```{r contrlme}
 lmer2B <- update(lmer2,            

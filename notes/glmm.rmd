@@ -1,5 +1,5 @@
 ---
-title: "generalized linear mixed models"
+title: "generalized linear mixed models: overview"
 author: "Ben Bolker"
 bibliography: "../glmm.bib"
 csl: ../nature.csl
@@ -25,7 +25,7 @@ header-includes:
 
 <style>
 .refs {
-   font-size: 16px;
+   font-size: 10px;
 }
 h2 { 
  color: #3399ff;		
@@ -77,7 +77,7 @@ theme_set(theme_bw())
 
 ## (Generalized) linear mixed models
 
-(G)LMMs: a statistical modeling framework incorporating:
+a statistical modeling framework incorporating:
 
 -   combinations of categorical and continuous predictors,\
     and interactions
@@ -85,8 +85,9 @@ theme_set(theme_bw())
     (e.g. binomial, Poisson, and extensions)
 -   (some) nonlinearity\
     (e.g. logistic, exponential, hyperbolic)
--   non-independent (grouped) data
-
+-   non-independent (grouped) data  
+    (can also be used to implement correlations and smooth terms)
+	
 ## a small corner of the universe
 
 ```{r universe, out.width="700px"}
@@ -305,6 +306,7 @@ $$
 
 - Could have multiple, nested levels of random effects  
 (genotype within population within region ...), or *crossed* REs
+- formula: `y ~ 1 + x + (1 | g)`
 
 ## Random-slopes model
 
@@ -320,6 +322,7 @@ $$
 
 - variation in the *effect* of a treatment or covariate across groups
 - estimate the correlation between the intercept and slope
+- formula: `y ~ 1 + x + (1 + x | g)`
 
 ## General definition
 
@@ -536,98 +539,54 @@ text(rep(1,5),seq(1.6,by=-0.18,length.out=5),
 - exact for linear models: approximate for (G)LMMs
 - fast
 - approximation sometimes awful (*complete separation*)
+- “denominator degrees of freedom”
+    - e.g. Kenward-Roger correction [@stroup_rethinking_2014]
 
 ## Likelihood ratio tests
 
-- better than Wald, but two problems:
-- “denominator degrees of freedom”
-    - e.g. Kenward-Roger correction [@stroup_rethinking_2014]
-- Profile confidence intervals: slow
+- better than Wald, but still asymptotic
+- for hypothesis tests, fit & compare full and nested models (`anova()`, `drop1()`)
+- for CIs, *profile confidence intervals* (slow)
 
-## Parametric bootstrapping
+## Nonparametric bootstrap
 
--   fit null model to data
--   simulate “data” from null model
--   fit null and working model, compute likelihood difference
--   repeat to estimate null distribution
--   should be OK but ??? not well tested  
-(assumes estimated parameters are "sufficiently" good)
+- Bootstrapping slow, but gold standard for frequentist models
+- Need to respect structure when resampling
+   - Residual bootstrapping for LMMs
+   - Nested resampling where possible
+- `lmeresampler` package
+
+## Parametric bootstrap
+
+- works for any model (including crossed-RE GLMMs)
+- fit null model to data
+- simulate “data” from null model
+- fit null and working model, compute likelihood difference
+- repeat to estimate null distribution\
+- assumes model correctly specified
+- `bootMer()`, `pbkrtest` package
 
 ## Bayesian inference
 
--   If we have a good sample from the posterior distribution (Markov chains have converged etc. etc.) we get most of the inferences we want for free by summarizing the marginal posteriors
--   *post hoc* Bayesian methods: use deterministic/frequentist methods to find the maximum, then sample around it
+- If we have a good sample from the posterior distribution, 
+we get everything we want for free
+- Bayesian methods are more challenging to make work, and slow
+- `MCMCglmm`, `brms`, `rstanarm`
 
 # Challenges & open questions
 
-## On beyond `lme4`
-
--  `glmmTMB`: zero-inflated and other distributions
--  `brms`,`rstanarm`: interfaces to Stan
--  `INLA`: spatial and temporal correlations
-- [rethinking package](https://github.com/rmcelreath/rethinking)
-
-## Toolboxes
-
-- JAGS (R: `rjags`, `r2jags`)
-- TensorFlow (R: `greta`)
-- NIMBLE (R: `nimble` package)
-- Stan (R: `rstan`)
-- TMB (R: `TMB`)
-
-## On beyond R
-
--   Julia: `MixedModels.jl` package
--   SAS: PROC MIXED, NLMIXED
--   AS-REML
--   Stata (GLLAMM, xtmelogit)
--   HLM, MLWiN
-
-![image](pix/300px-On_Beyond_Zebra.jpg){width="3cm"}
-
 ## Challenges
 
--   Small clusters: need AGQ/MCMC
--   Small numbers of clusters: need finite-size corrections (KR/PB/MCMC)
--   Small data sets: issues with *singular* fits  
-[@barr_random_2013] vs. [@bates_parsimonious_2015]
--   Big data: speed!
--   Model diagnosis
--   Confidence intervals accounting for uncertainty in variances
-
-## The need for speed [@brooks_modeling_2017]
-
-<!-- https://tex.stackexchange.com/questions/250623/how-to-generate-a-4-up-table-of-images-with-pandoc -->
-
-
-![](pix/bigfit2.png)
-
-## more speed
-
-![](pix/bigfit1.png)
- 
-
-## Spatial and temporal correlations
-
--   Sometimes blocking takes care of non-independence ...
--   but sometimes there is temporal or spatial correlation *within* blocks
--    ... also phylogenetic ... [@ives_statistics_2006]
--   "G-side" vs. "R-side" effects
--   tricky to implement for GLMMs, but new possibilities on the horizon
-[@Rue+2009; @rousset_testing_2014];
-[https://github.com/stevencarlislewalker/lme4ord](lme4ord package)
-
-## Next steps
-
--   Complex random effects:   
-    regularization, model selection, penalized methods (lasso/fence)
--   Flexible correlation and variance structures
--   Flexible/nonparametric random effects distributions
--   hybrid & improved MCMC methods
--   *Reliable* assessment of out-of-sample performance
+- GLMMs with few clusters: need to go beyond Laplace approximation
+- LMMs with few clusters: need finite-size corrections (KR/PB/MCMC)
+- Choosing the complexity of RE components (**singular fits**): [@barr_random_2013, @bates_parsimonious_2015]
+- Big data: speed!
+- Model diagnosis
+- Complex correlation structures: spatial, temporal, phylogenetic, ... [@ives_statistics_2006; @Rue+2009; @rousset_testing_2014]
 
 ## resources
 
+- [Mixed models CRAN task view](https://cran.r-project.org/web/views/MixedModels.html)
 - <http://ms.mcmaster.ca/~bolker/misc/private/14-Fox-Chap13.pdf>
 - <https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html>
 -  @bolker_glmm_2014

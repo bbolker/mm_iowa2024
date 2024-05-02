@@ -5,13 +5,19 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 
 **approximate and subject to change!**
 
-* 9-9:45 overview, LMMs
-* 9:45-10:15 **break**
-* 10:15-10:45 LMMs, lab
+* 9-9:45 overview
+* 9:45-10 **break**
+* 10-10:20 live coding examples
+* 10:20-10:45 hands-on
 * 10:45-11:15 **coffee?**
-* 11:15-noon GLMMs
+* 11:15-noon diagnostics and troubleshooting
+   * diagnostics
+   * singular fits
+      * how to simplify (rePCA)
+   * complete separation
+   * convergence warnings
 * noon - 1 **lunch**
-* 1-1:45 GLMM lab
+* 1-1:45 guts of 
 * 1:45 - 2 **break**
 * 2-2:45 
 * 2:45-3:15 coffee

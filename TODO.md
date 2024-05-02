@@ -10,11 +10,15 @@
 
 ### glitches/troubleshooting
 
+* starlings with glmmTMB + dispformula = ~0 + REML=TRUE; why do we get a non-pos-def Hessian?
 * sjPlot: how to get multiple terms?
+* why do location-scale plots differ between performance::check_model() and using lme4 builtins?
+* coef plots comparing Wald and profile CIs for starlings, using `tidy()` + `by_2sd()` ...
 
 ### topics
 
-* basic LMMs
+* GLMM intro
+   * add mmd_utils/fire picture?
 * basic GLMMs
 * simulate_new()
 * troubleshooting: convergence warnings, singular fits, complete separation
