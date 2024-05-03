@@ -370,7 +370,7 @@ mod_pkgs &lt;- c(&quot;bbmle&quot;, &quot;blme&quot;, &quot;brms&quot;, &quot;ga
               &quot;glmmTMB&quot;, &quot;lme4&quot;, &quot;MCMCglmm&quot;, &quot;robustlmm&quot;, &quot;rstanarm&quot;, &quot;spaMM&quot;)
 ## miscellaneous/data manipulation
 data_pkgs &lt;- c(&quot;rbenchmark&quot;, &quot;brglm&quot;, &quot;devtools&quot;, &quot;emdbook&quot;, &quot;MEMSS&quot;,
-               &quot;plyr&quot;, &quot;reshape2&quot;, &quot;SASmixed&quot;, &quot;tidyverse&quot;)
+               &quot;plyr&quot;, &quot;remotes&quot;, &quot;reshape2&quot;, &quot;SASmixed&quot;, &quot;tidyverse&quot;)
 ## model processing/diagnostics/reporting
 diag_pkgs &lt;- c(&quot;afex&quot;, &quot;agridat&quot;, &quot;AICcmodavg&quot;, &quot;aods3&quot;, &quot;arm&quot;,
                &quot;broom&quot;, &quot;broom.mixed&quot;, &quot;cAIC4&quot;, &quot;car&quot;, &quot;coda&quot;, &quot;DHARMa&quot;,
@@ -380,7 +380,8 @@ diag_pkgs &lt;- c(&quot;afex&quot;, &quot;agridat&quot;, &quot;AICcmodavg&quot;,
                &quot;bayesplot&quot;, &quot;posterior&quot;, &quot;bayestestR&quot;)
 ## graphics
 graph_pkgs &lt;- c(&quot;cowplot&quot;, &quot;directlabels&quot;,
-                &quot;dotwhisker&quot;, &quot;GGally&quot;, &quot;ggalt&quot;, &quot;ggplot2&quot;,
+                ## &quot;dotwhisker&quot;,
+                &quot;GGally&quot;, &quot;ggalt&quot;, &quot;ggplot2&quot;,
                 &quot;ggpubr&quot;, &quot;ggstance&quot;, &quot;gridExtra&quot;, &quot;plotMCMC&quot;,
                 &quot;plotrix&quot;, &quot;see&quot;, &quot;viridis&quot;)
 
@@ -391,6 +392,11 @@ to_install &lt;- setdiff(all_pkgs,already_installed)
 if (length(to_install)&gt;0) {
     install.packages(to_install,dependencies=TRUE)
 }
+
+## these are currently (temporarily) not on CRAN
+github_pkgs &lt;- c(&quot;leeper/margins&quot;, &quot;fsolt/dotwhisker&quot;)
+for (p in github_pkgs) remotes::install_github(p)
+
 ## get INLA (optional!)
 install.packages(&quot;INLA&quot;,repos=c(getOption(&quot;repos&quot;),INLA=&quot;https://inla.r-inla-download.org/R/stable&quot;), dep=TRUE) </code></pre>
 <p>There is no need to (re)install packages such as <code>grid</code>,
@@ -420,7 +426,7 @@ or <a href="https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html#cpp
 }
 check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)</code></pre>
 <hr />
-<p>Last updated: 2024-04-29 10:52:46.629307</p>
+<p>Last updated: 2024-05-02 20:07:00.700599</p>
 
 
 

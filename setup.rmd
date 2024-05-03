@@ -15,7 +15,7 @@ mod_pkgs <- c("bbmle", "blme", "brms", "gamm4", "glmmLasso", "glmmML", "GLMMadap
               "glmmTMB", "lme4", "MCMCglmm", "robustlmm", "rstanarm", "spaMM")
 ## miscellaneous/data manipulation
 data_pkgs <- c("rbenchmark", "brglm", "devtools", "emdbook", "MEMSS",
-               "plyr", "reshape2", "SASmixed", "tidyverse")
+               "plyr", "remotes", "reshape2", "SASmixed", "tidyverse")
 ## model processing/diagnostics/reporting
 diag_pkgs <- c("afex", "agridat", "AICcmodavg", "aods3", "arm",
                "broom", "broom.mixed", "cAIC4", "car", "coda", "DHARMa",
@@ -25,7 +25,8 @@ diag_pkgs <- c("afex", "agridat", "AICcmodavg", "aods3", "arm",
                "bayesplot", "posterior", "bayestestR")
 ## graphics
 graph_pkgs <- c("cowplot", "directlabels",
-                "dotwhisker", "GGally", "ggalt", "ggplot2",
+                ## "dotwhisker",
+                "GGally", "ggalt", "ggplot2",
                 "ggpubr", "ggstance", "gridExtra", "plotMCMC",
                 "plotrix", "see", "viridis")
 
@@ -36,6 +37,11 @@ to_install <- setdiff(all_pkgs,already_installed)
 if (length(to_install)>0) {
     install.packages(to_install,dependencies=TRUE)
 }
+
+## these are currently (temporarily) not on CRAN
+github_pkgs <- c("leeper/margins", "fsolt/dotwhisker")
+for (p in github_pkgs) remotes::install_github(p)
+
 ## get INLA (optional!)
 install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE) 
 ```

@@ -4,7 +4,7 @@
 
 * [setup instructions](setup.html)
 * [schedule](schedule.html)
-* [student survey]()
+* [student survey](https://forms.gle/eRAkbE7P15CqGE1v9)
 
 ## notes
 
