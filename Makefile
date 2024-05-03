@@ -1,6 +1,9 @@
 %.html: %.rmd
 	Rscript -e "rmarkdown::render(\"$<\",output_format='html_document')"
 
+%.html: %.md
+	Rscript -e "rmarkdown::render(\"$<\",output_format='html_document')"
+
 %.slides.html: %.rmd
 	Rscript -e "rmarkdown::render(\"$<\",output_format='ioslides_presentation', output_file='tmp.html')"
 	mv notes/tmp.html $@
@@ -20,4 +23,4 @@ notepages = $(notes:%.rmd=docs/%.html)
 slides = $(wildcard notes/*.rmd)
 slidepages = $(slides:%.rmd=docs/%.slides.html)
 
-pushnotes: $(notepages)
+pushnotes: $(notepages) docs/schedule.html docs/index.html

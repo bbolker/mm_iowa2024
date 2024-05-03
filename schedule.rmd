@@ -5,11 +5,10 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 
 **approximate and subject to change!**
 
-* 9-9:45 overview
-* 9:45-10 **break**
-* 10-10:20 live coding examples
-* 10:20-10:45 hands-on
-* 10:45-11:15 **coffee?**
+* 9-10 - [intro comments](notes/intro.html); [overview](notes/glmm.html); start [live coding](notes/mixed_lab.html)
+* 10-10:15 **break**
+* 10:15-10:45 live coding examples
+* 10:45-11:15
 * 11:15-noon diagnostics and troubleshooting
    * diagnostics
    * singular fits
@@ -18,16 +17,11 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
    * convergence warnings
 * noon - 1 **lunch**
 * 1-1:45 guts of 
-* 1:45 - 2 **break**
 * 2-2:45 
-* 2:45-3:15 coffee
+* 3-3:15 **break**
 * 3:15-4
 * 4-4:15
 * 4:15-5 open session/Q&A?
 
-- [intro/overview](notes/intro.html)
-- [ggplot/graphics intro](notes/datavis.html)
-- [GLM reminder](notes/glm_basic.html)
-- [mixed models overview](notes/glmm.slides.html)
-- [statistical inference/philosophy](notes/model_inference.html)
+
 
