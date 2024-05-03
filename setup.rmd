@@ -43,6 +43,7 @@ github_pkgs <- c("leeper/margins", "fsolt/dotwhisker")
 for (p in github_pkgs) remotes::install_github(p)
 
 ## get INLA (optional!)
+options(timeout=300) # Because INLA is 70 MB it might take more than 60 sec
 install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE) 
 ```
 
