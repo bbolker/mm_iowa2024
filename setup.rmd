@@ -31,12 +31,12 @@ graph_pkgs <- c("cowplot", "directlabels",
                 "plotrix", "see", "viridis")
 
 all_pkgs <- c(mod_pkgs,data_pkgs,diag_pkgs,graph_pkgs)
-avail_pkgs <- rownames(available.packages())
-already_installed <- rownames(installed.packages())
-to_install <- setdiff(all_pkgs,already_installed)
-if (length(to_install)>0) {
-    install.packages(to_install,dependencies=TRUE)
+
+if (!require("pak")) {
+    install.packages("pak")
 }
+
+pak::pkg_install(all_pkgs)
 
 ## these are currently (temporarily) not on CRAN
 github_pkgs <- c("leeper/margins", "fsolt/dotwhisker")

@@ -386,12 +386,12 @@ graph_pkgs &lt;- c(&quot;cowplot&quot;, &quot;directlabels&quot;,
                 &quot;plotrix&quot;, &quot;see&quot;, &quot;viridis&quot;)
 
 all_pkgs &lt;- c(mod_pkgs,data_pkgs,diag_pkgs,graph_pkgs)
-avail_pkgs &lt;- rownames(available.packages())
-already_installed &lt;- rownames(installed.packages())
-to_install &lt;- setdiff(all_pkgs,already_installed)
-if (length(to_install)&gt;0) {
-    install.packages(to_install,dependencies=TRUE)
+
+if (!require(&quot;pak&quot;)) {
+    install.packages(&quot;pak&quot;)
 }
+
+pak::pkg_install(all_pkgs)
 
 ## these are currently (temporarily) not on CRAN
 github_pkgs &lt;- c(&quot;leeper/margins&quot;, &quot;fsolt/dotwhisker&quot;)
@@ -426,7 +426,7 @@ or <a href="https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html#cpp
 }
 check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)</code></pre>
 <hr />
-<p>Last updated: 2024-05-02 20:07:00.700599</p>
+<p>Last updated: 2024-05-03 10:25:20.712413</p>
 
 
 
