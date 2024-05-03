@@ -25,6 +25,13 @@
     * convergence warnings: `allFit` (+ tidy etc)
 	* singular fits? Matuschek et al, Barr et al
 	    * fragility
+* advanced models
+   * covariance structures
+* internals:
+   * constructing random effect structures
+   * modular framework
+   * covariance matrix parameterizations
+   
 * troubleshooting: diagnostics
 * troubleshooting: speed and scale?
 * inference: Wald (ddf issues), profiles, LRT, bootstrapping (P/NP)
