@@ -401,6 +401,7 @@ for (p in github_pkgs) remotes::install_github(p)
 ## if (!require(&quot;BiocManager&quot;, quietly = TRUE))
 ##   install.packages(&quot;BiocManager&quot;)
 ## BiocManager::install(c(&quot;Rgraphviz&quot;, &quot;graph&quot;), update = FALSE)
+## options(timeout=300)
 ## install.packages(&quot;INLA&quot;,repos=c(getOption(&quot;repos&quot;),INLA=&quot;https://inla.r-inla-download.org/R/stable&quot;), dep=TRUE) </code></pre>
 <p>There is no need to (re)install packages such as <code>grid</code>,
 <code>nlme</code>, <code>MASS</code>, <code>mgcv</code>, as they come
@@ -429,7 +430,7 @@ or <a href="https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html#cpp
 }
 check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)</code></pre>
 <hr />
-<p>Last updated: 2024-05-03 20:07:29.42918</p>
+<p>Last updated: 2024-05-03 20:31:35.140162</p>
 
 
 
