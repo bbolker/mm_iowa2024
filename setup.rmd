@@ -12,7 +12,7 @@ Note that this list deliberately takes an [everything-but-the-kitchen-sink](http
 ```{r pkg1,eval=FALSE}
 ## modeling packages
 mod_pkgs <- c("bbmle", "blme", "brms", "gamm4", "glmmLasso", "glmmML", "GLMMadaptive",
-              "glmmTMB", "lme4", "MCMCglmm", "robustlmm", "rstanarm", "spaMM")
+              "glmmTMB", "lme4", "MCMCglmm", "robustlmm", "rstanarm", "RTMB", "spaMM")
 ## miscellaneous/data manipulation
 data_pkgs <- c("rbenchmark", "brglm", "devtools", "emdbook", "MEMSS",
                "plyr", "remotes", "reshape2", "SASmixed", "tidyverse")
@@ -38,12 +38,15 @@ if (!require("pak")) {
 
 pak::pkg_install(all_pkgs)
 
-## these are currently (temporarily) not on CRAN
-github_pkgs <- c("leeper/margins", "fsolt/dotwhisker")
+## these are currently (temporarily) not on CRAN, or binaries aren't there
+github_pkgs <- c("leeper/prediction", "leeper/margins", "fsolt/dotwhisker")
 for (p in github_pkgs) remotes::install_github(p)
 
 ## get INLA (optional!)
-install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE) 
+## if (!require("BiocManager", quietly = TRUE))
+##   install.packages("BiocManager")
+## BiocManager::install(c("Rgraphviz", "graph"), update = FALSE)
+## install.packages("INLA",repos=c(getOption("repos"),INLA="https://inla.r-inla-download.org/R/stable"), dep=TRUE) 
 ```
 
 There is no need to (re)install packages such as `grid`, `nlme`, `MASS`, `mgcv`, as they come with a standard R installation. 

@@ -11,7 +11,7 @@
 
 
 
-<title>Setup for GLMM course</title>
+<title>mixed model troubleshooting</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,88 +348,85 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Setup for GLMM course</h1>
+<h1 class="title toc-ignore">mixed model troubleshooting</h1>
 
 </div>
 
 
-<ol style="list-style-type: decimal">
-<li><p>Please make sure you have the <strong>latest version</strong> of
-R (4.4.0) installed from <a href="https://cran.r-project.org/">CRAN</a>.</p></li>
-<li><p>The RStudio interface is strongly recommended; you can download
-it <a href="https://www.rstudio.com/products/rstudio/download/">here</a>
-(get the free Desktop version).</p></li>
-<li><p>Install primary GLMM-fitting packages (and a variety of extras).
-Note that this list deliberately takes an <a href="https://en.wiktionary.org/wiki/everything_but_the_kitchen_sink#English">everything-but-the-kitchen-sink</a>
-approach, since it will save time to have everything you might want
-installed in advance. If you have questions or problems, please contact
-me before the workshop.</p></li>
-</ol>
-<pre class="r"><code>## modeling packages
-mod_pkgs &lt;- c(&quot;bbmle&quot;, &quot;blme&quot;, &quot;brms&quot;, &quot;gamm4&quot;, &quot;glmmLasso&quot;, &quot;glmmML&quot;, &quot;GLMMadaptive&quot;,
-              &quot;glmmTMB&quot;, &quot;lme4&quot;, &quot;MCMCglmm&quot;, &quot;robustlmm&quot;, &quot;rstanarm&quot;, &quot;RTMB&quot;, &quot;spaMM&quot;)
-## miscellaneous/data manipulation
-data_pkgs &lt;- c(&quot;rbenchmark&quot;, &quot;brglm&quot;, &quot;devtools&quot;, &quot;emdbook&quot;, &quot;MEMSS&quot;,
-               &quot;plyr&quot;, &quot;remotes&quot;, &quot;reshape2&quot;, &quot;SASmixed&quot;, &quot;tidyverse&quot;)
-## model processing/diagnostics/reporting
-diag_pkgs &lt;- c(&quot;afex&quot;, &quot;agridat&quot;, &quot;AICcmodavg&quot;, &quot;aods3&quot;, &quot;arm&quot;,
-               &quot;broom&quot;, &quot;broom.mixed&quot;, &quot;cAIC4&quot;, &quot;car&quot;, &quot;coda&quot;, &quot;DHARMa&quot;,
-               &quot;effects&quot;, &quot;emmeans&quot;, &quot;HLMdiag&quot;, &quot;Hmisc&quot;, &quot;lmerTest&quot;, &quot;multcomp&quot;,
-               &quot;MuMIn&quot;, &quot;pbkrtest&quot;, &quot;performance&quot;, &quot;RLRsim&quot;, &quot;rockchalk&quot;, &quot;sjPlot&quot;,
-               &quot;sjstats&quot;, &quot;stargazer&quot;, &quot;texreg&quot;, &quot;tidybayes&quot;,
-               &quot;bayesplot&quot;, &quot;posterior&quot;, &quot;bayestestR&quot;)
-## graphics
-graph_pkgs &lt;- c(&quot;cowplot&quot;, &quot;directlabels&quot;,
-                ## &quot;dotwhisker&quot;,
-                &quot;GGally&quot;, &quot;ggalt&quot;, &quot;ggplot2&quot;,
-                &quot;ggpubr&quot;, &quot;ggstance&quot;, &quot;gridExtra&quot;, &quot;plotMCMC&quot;,
-                &quot;plotrix&quot;, &quot;see&quot;, &quot;viridis&quot;)
-
-all_pkgs &lt;- c(mod_pkgs,data_pkgs,diag_pkgs,graph_pkgs)
-
-if (!require(&quot;pak&quot;)) {
-    install.packages(&quot;pak&quot;)
-}
-
-pak::pkg_install(all_pkgs)
-
-## these are currently (temporarily) not on CRAN, or binaries aren&#39;t there
-github_pkgs &lt;- c(&quot;leeper/prediction&quot;, &quot;leeper/margins&quot;, &quot;fsolt/dotwhisker&quot;)
-for (p in github_pkgs) remotes::install_github(p)
-
-## get INLA (optional!)
-## if (!require(&quot;BiocManager&quot;, quietly = TRUE))
-##   install.packages(&quot;BiocManager&quot;)
-## BiocManager::install(c(&quot;Rgraphviz&quot;, &quot;graph&quot;), update = FALSE)
-## install.packages(&quot;INLA&quot;,repos=c(getOption(&quot;repos&quot;),INLA=&quot;https://inla.r-inla-download.org/R/stable&quot;), dep=TRUE) </code></pre>
-<p>There is no need to (re)install packages such as <code>grid</code>,
-<code>nlme</code>, <code>MASS</code>, <code>mgcv</code>, as they come
-with a standard R installation.</p>
-<ol start="4" style="list-style-type: decimal">
-<li>If we end up using the <code>brms</code> package for Bayesian
-computation, we will need compilers installed as well:</li>
-</ol>
-<blockquote>
-<p>Because brms is based on Stan, a C++ compiler is required. The
-program Rtools (available on <a href="https://cran.r-project.org/bin/windows/Rtools/" class="uri">https://cran.r-project.org/bin/windows/Rtools/</a>) comes
-with a C++ compiler for Windows. On Mac, you should install Xcode. For
-further instructions on how to get the compilers running, see the
-prerequisites section on <a href="https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started" class="uri">https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started</a>.</p>
-</blockquote>
+<div id="convergence-problems" class="section level1">
+<h1>convergence problems</h1>
+<div id="convergence-warnings-non-positive-definite-hessians" class="section level2">
+<h2>convergence warnings; non-positive-definite Hessians</h2>
 <ul>
-<li>If you don’t have ‘development tools’ (compilers etc.) installed, do
-that first. You can try the instructions <a href="https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started#configuring-c-toolchain">here</a>
-or <a href="https://mc-stan.org/docs/cmdstan-guide/cmdstan-installation.html#cpp-toolchain">here</a></li>
-<li>Install <code>rstan</code>
-(<code>install.packages(&quot;rstan&quot;)</code>)</li>
-<li>Install <code>cmdstanr</code> From <a href="https://mc-stan.org/cmdstanr/articles/cmdstanr.html" class="uri">https://mc-stan.org/cmdstanr/articles/cmdstanr.html</a>:</li>
+<li>what does this mean?</li>
+<li>modern mixed-model approaches do non-linear optimization over the
+parameters
+<ul>
+<li>sometimes just the covariance parameters, sometimes fixed +
+covariance parameters</li>
+<li>(random-effects parameters are profiled out or estimated in an
+internal loop)</li>
+</ul></li>
+<li>at the optimum we should have a gradient of zero and a
+<strong>positive definite</strong> Hessian</li>
+<li>Hessian:</li>
 </ul>
-<pre class="r"><code>while (!require(&quot;cmdstanr&quot;)) {
-    install.packages(&quot;cmdstanr&quot;, repos = c(&quot;https://mc-stan.org/r-packages/&quot;, getOption(&quot;repos&quot;, &quot;https://cloud.r-project.org&quot;)))
-}
-check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)</code></pre>
-<hr />
-<p>Last updated: 2024-05-03 20:07:29.42918</p>
+<p><span class="math display">\[
+\left(
+\begin{array}{cccc}
+\frac{\partial^2 L}{\partial \beta_{1}^2} &amp; \frac{\partial^2
+L}{\partial \beta_{1} \partial \beta_{2}} &amp; \frac{\partial^2
+L}{\partial \beta_{1} \partial \beta_{3}} &amp; \ldots \\
+\frac{\partial^2 L}{\partial \beta_{2} \partial \beta_{1}} &amp;
+\frac{\partial^2 L}{\partial \beta_{2}^2} &amp; \frac{\partial^2
+L}{\partial \beta_{2} \partial \beta_{3}} &amp; \ldots \\
+\frac{\partial^2 L}{\partial \beta_{3} \partial \beta_{1}} &amp;
+\frac{\partial^2 L}{\partial \beta_{3} \partial \beta_{2}} &amp;
+\frac{\partial^2 L}{\partial \beta_{3}^2} &amp; \ldots \\
+\vdots &amp; \vdots &amp; \vdots &amp; \ddots
+\end{array}
+\right)
+\]</span></p>
+</div>
+<div id="section" class="section level2">
+<h2></h2>
+<p><strong>FIXME</strong>: picture</p>
+</div>
+<div id="solutions" class="section level2">
+<h2>solutions</h2>
+<ul>
+<li>look for problems with the model</li>
+<li>scale and center</li>
+<li>extract Hessian and see <em>which</em> eigenvector(s) is/are
+associated with the minimal eigenvalue(s)</li>
+</ul>
+</div>
+<div id="diagnostics" class="section level2">
+<h2>diagnostics</h2>
+<ul>
+<li><code>allFit</code></li>
+<li>are parameters close enough?</li>
+<li>what is the distribution of negative log-likelihoods?</li>
+<li>which parameters are unstable?</li>
+</ul>
+</div>
+<div id="singular-fits" class="section level2">
+<h2>singular fits</h2>
+<ul>
+<li>more Hessian stuff</li>
+</ul>
+</div>
+<div id="complete-separation-glmm-specific" class="section level2">
+<h2>complete separation (GLM(M)-specific)</h2>
+</div>
+<div id="other-boundary-type-problems-extended-glmm-specific" class="section level2">
+<h2>other boundary-type problems (extended GLM(M)-specific)</h2>
+<ul>
+<li>zero-inflation</li>
+<li>dispersion parameters (e.g. negative binomial)</li>
+</ul>
+</div>
+</div>
 
 
 

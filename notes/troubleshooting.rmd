@@ -1,0 +1,72 @@
+---
+title: "mixed model troubleshooting"
+---
+
+# convergence problems
+
+## convergence warnings; non-positive-definite Hessians
+
+* what does this mean?
+* modern mixed-model approaches do non-linear optimization over the parameters
+    * sometimes just the covariance parameters, sometimes fixed + covariance parameters
+	* (random-effects parameters are profiled out or estimated in an internal loop)
+* at the optimum we should have a gradient of zero and a **positive definite** Hessian
+* Hessian:
+
+
+\newcommand{\jjdiag}[1]{\frac{\partial^2 L}{\partial \beta_{#1}^2}}
+\newcommand{\jjoff}[2]{\frac{\partial^2 L}{\partial \beta_{#1} \partial \beta_{#2}}}
+
+\[
+\left(
+\begin{array}{cccc}
+\jjdiag{1} & \jjoff{1}{2} & \jjoff{1}{3} & \ldots \\
+\jjoff{2}{1} & \jjdiag{2} & \jjoff{2}{3} & \ldots \\
+\jjoff{3}{1} & \jjoff{3}{2} & \jjdiag{3} & \ldots \\
+\vdots & \vdots & \vdots & \ddots
+\end{array}
+\right)
+\]
+
+
+## 
+
+**FIXME**: picture
+
+## solutions
+
+* look for problems with the model
+* scale and center
+* extract Hessian and see *which* eigenvector(s) is/are associated with the minimal eigenvalue(s)
+
+## diagnostics
+
+* `allFit`
+* are parameters close enough?
+* what is the distribution of negative log-likelihoods?
+* which parameters are unstable?
+
+## singular fits
+
+* more Hessian stuff
+
+## model reduction
+
+* drop terms
+* drop correlations
+* reduced-rank models
+
+## regularization
+
+* `blme`
+* other possibilities?
+
+## complete separation (GLM(M)-specific)
+
+* add priors
+
+## other boundary-type problems (extended GLM(M)-specific)
+
+* zero-inflation
+* dispersion parameters (e.g. negative binomial)
+

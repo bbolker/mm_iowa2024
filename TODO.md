@@ -19,12 +19,22 @@
 
 * GLMM intro
    * add mmd_utils/fire picture?
+   * add basic GLM stuff
+   * mention BLUPs/conditional means
 * basic GLMMs
+   * distributions: beta, Tweedie, t, ...
 * simulate_new()
 * troubleshooting: convergence warnings, singular fits, complete separation
     * convergence warnings: `allFit` (+ tidy etc)
 	* singular fits? Matuschek et al, Barr et al
 	    * fragility
+* model building
+   * X matrix; formula construction
+   * Z matrix: Khatri-Rao products
+   * covariance matrix (Sigma): blocks
+   * parameterizing p-d covariance matrices
+* model-hacking
+   * modular code in `lme4` (`?modular`), `glmmTMB` (`?fitTMB`)
 * advanced models
    * covariance structures
 * internals:
