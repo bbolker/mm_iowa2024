@@ -8,19 +8,13 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 * 9-10 - [intro comments](notes/intro.html); [overview](notes/glmm.html); start [live coding](notes/mixed_lab.html)
 * 10-10:15 **break**
 * 10:15-10:45 [live coding examples](notes/mixed_lab.html)
-* 10:45-11:15
-* 11:15-noon diagnostics and troubleshooting
-   * diagnostics
-   * singular fits
-      * how to simplify (rePCA)
-   * complete separation
-   * convergence warnings
+* 10:45-11:15 [simulating mixed models]()
+* 11:15-noon [diagnostics and troubleshooting](notes/troubleshooting.html)
 * noon - 1 **lunch**
-* 1-1:45 guts of 
-* 2-2:45 
+* modular fitting
+* constructing $X$, $Z$, and $\Sigma$
+* correlation structures
 * 3-3:15 **break**
-* 3:15-4
-* 4-4:15
 * 4:15-5 open session/Q&A?
 
 

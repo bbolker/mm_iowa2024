@@ -1,12 +1,6 @@
 ## Iowa
 
-* setup instructions
-   * packages
-   * `renv` snapshot?
-   * recommend RStudio/Posit cloud? WebR?
-* poll to registrants
-* intro
-   * new 'universe' picture?
+* email super-beginnery person
 
 ### glitches/troubleshooting
 
@@ -23,17 +17,19 @@ mvbutils?
 ### topics
 
 * GLMM intro
+   * new 'universe' picture?
    * add mmd_utils/fire picture?
    * add basic GLM stuff
    * mention BLUPs/conditional means
    * comparisons between SAS, Stata, AS-REML, Julia, Python, ...
 * basic GLMMs
    * distributions: beta, Tweedie, t, ...
-* simulate_new()
 * troubleshooting: convergence warnings, singular fits, complete separation
     * convergence warnings: `allFit` (+ tidy etc)
 	* singular fits? Matuschek et al, Barr et al
 	    * fragility
+* simulation		
+   * covariance matrix parameterizations
 * model building
    * X matrix; formula construction
    * Z matrix: Khatri-Rao products
@@ -43,13 +39,7 @@ mvbutils?
    * modular code in `lme4` (`?modular`), `glmmTMB` (`?fitTMB`)
 * advanced models
    * covariance structures
-* internals:
-   * constructing random effect structures
-   * modular framework
-   * covariance matrix parameterizations
    
-* troubleshooting: diagnostics
-* troubleshooting: speed and scale?
 * inference: Wald (ddf issues), profiles, LRT, bootstrapping (P/NP)
 
 https://www.regcytes.extension.iastate.edu/appliedstatistics/

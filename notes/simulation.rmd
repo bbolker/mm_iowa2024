@@ -1,0 +1,8 @@
+---
+title: "generating simulated data from mixed models"
+---
+
+## Goals
+
+* power analysis (can be done with 
+
