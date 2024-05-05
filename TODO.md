@@ -10,6 +10,11 @@
 
 ### glitches/troubleshooting
 
+makefile to link pix, glmm.bib
+coefplot2 from palday/coefplot2
+mvbutils?
+(convert coefplot2 code to dotwhisker ...)
+
 * starlings with glmmTMB + dispformula = ~0 + REML=TRUE; why do we get a non-pos-def Hessian?
 * sjPlot: how to get multiple terms?
 * why do location-scale plots differ between performance::check_model() and using lme4 builtins?

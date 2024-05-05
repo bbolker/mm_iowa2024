@@ -2,12 +2,22 @@
 title: "mixed model troubleshooting"
 ---
 
+# overview
+
+## categories of warnings
+
+* messages vs warnings vs errors
+* convergence (numerical optimization questionable)
+* singular fits (model is degenerate)
+   * other forms of degeneracy (complete separation etc.)
+* model diagnostics issues (model is inappropriate)
+
 # convergence problems
 
 ## convergence warnings; non-positive-definite Hessians
 
 * what does this mean?
-* modern mixed-model approaches do non-linear optimization over the parameters
+* modern mixed-model software does some form of non-linear optimization
     * sometimes just the covariance parameters, sometimes fixed + covariance parameters
 	* (random-effects parameters are profiled out or estimated in an internal loop)
 * at the optimum we should have a gradient of zero and a **positive definite** Hessian
@@ -31,12 +41,20 @@ title: "mixed model troubleshooting"
 
 ## 
 
+* eigenvalues of the Hessian give curvature in the principal directions (== eigenvectors)
+
+```{r echo = FALSE}
+## add picture: curve3d + genrose
+cc <- emdbook::curve3d(x^2+y^2+3*x*y, from = c(-1, -1), to = c(1,1),
+                 sys3d = "none")
+```
+
 **FIXME**: picture
 
 ## solutions
 
-* look for problems with the model
-* scale and center
+* double-check the model definition and data
+* scale and center predictor variables
 * extract Hessian and see *which* eigenvector(s) is/are associated with the minimal eigenvalue(s)
 
 ## diagnostics
