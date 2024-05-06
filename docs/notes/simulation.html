@@ -10,9 +10,8 @@
 
 
 
-<meta name="date" content="2024-05-06" />
 
-<title>Iowa workshop schedule</title>
+<title>generating simulated data from mixed models</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -349,29 +348,84 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Iowa workshop schedule</h1>
-<h4 class="date">06 May 2024</h4>
+<h1 class="title toc-ignore">generating simulated data from mixed
+models</h1>
 
 </div>
 
 
-<p><strong>approximate and subject to change!</strong></p>
+<div id="goals" class="section level2">
+<h2>Goals</h2>
 <ul>
-<li>9-10 - <a href="notes/intro.html">intro comments</a>; <a href="notes/glmm.html">overview</a>; start <a href="notes/mixed_lab.html">live coding</a></li>
-<li>10-10:15 <strong>break</strong></li>
-<li>10:15-10:45 <a href="notes/mixed_lab.html">live coding
-examples</a></li>
-<li>10:45-11:15 <a href="notes/simulation.html">simulating mixed
-models</a></li>
-<li>11:15-noon <a href="notes/troubleshooting.html">diagnostics and
-troubleshooting</a></li>
-<li>noon - 1 <strong>lunch</strong></li>
-<li>modular fitting</li>
-<li>constructing <span class="math inline">\(X\)</span>, <span class="math inline">\(Z\)</span>, and <span class="math inline">\(\Sigma\)</span></li>
-<li>correlation structures</li>
-<li>3-3:15 <strong>break</strong></li>
-<li>4:15-5 open session/Q&amp;A?</li>
+<li>power analysis (can be done with packages such as <code>simr</code>
+etc.</li>
+<li>testing methods</li>
+<li>constructing reproducible examples</li>
+<li>testing effects of model misspecification</li>
+<li>benchmarking</li>
 </ul>
+</div>
+<div id="simulating-covariates" class="section level2">
+<h2>Simulating covariates</h2>
+<ul>
+<li>useful functions: <code>expand.grid</code>, <code>rep</code>,
+<code>rnorm</code> (and other random deviate generators),
+<code>sample</code>, <code>gl</code></li>
+<li>can use covariate structure from an existing data set</li>
+<li>see also <code>lme4::mkDataTemplate</code></li>
+</ul>
+</div>
+<div id="simulate-functions" class="section level2">
+<h2><code>simulate</code> functions</h2>
+<ul>
+<li>many modeling tools have a <code>simulate</code> function that
+simulates new responses <em>from a fitted model object</em></li>
+<li>some (?which?) have <code>newdata</code> or <code>newparams</code>
+arguments</li>
+<li><strong>de novo</strong> simulation: <code>simulate</code> in
+<code>lme4</code>, <code>simulate_new</code> in
+<code>glmmTMB</code></li>
+</ul>
+</div>
+<div id="de-novo-specification" class="section level2">
+<h2><em>de novo</em> specification</h2>
+<ul>
+<li>formula: specified as in package (one-sided)</li>
+<li><code>newdata</code>: covariate/grouping variable information</li>
+<li><code>family</code>: as in package</li>
+<li><code>newparams</code>: a list of parameter vectors</li>
+</ul>
+</div>
+<div id="parameters-for-lme4simulate" class="section level2">
+<h2>parameters for <code>lme4::simulate</code></h2>
+<ul>
+<li><code>beta</code>: fixed-effect parameters</li>
+<li><code>theta</code>: random-effect covariances (scaled Cholesky
+factor; == log-SD for scalar REs). <em>Note</em> that <code>lme4</code>
+reorders the random effects in decreasing order of the number of
+clusters …</li>
+<li><code>sigma</code>: residual SD, shape parameter</li>
+<li>see <code>mkParsTemplate</code></li>
+</ul>
+</div>
+<div id="parameters-for-glmmtmbsimulate_new" class="section level2">
+<h2>parameters for <code>glmmTMB::simulate_new</code></h2>
+<ul>
+<li><code>beta</code>: fixed-effect parameters (conditional model)</li>
+<li><code>betazi</code>, <code>betadisp</code>: fixed-effect parameters
+for zero-inflation (logit scale), dispersion models (log scale)</li>
+<li><code>theta</code>: for each RE term, log-SD vector <em>followed
+by</em> correlation parameters (see <a href="https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html">covariance
+structure vignette</a> for more details)</li>
+<li><code>thetazi</code>: ditto</li>
+<li><code>psi</code>: shape parameters for Tweedie/Student-t/etc.</li>
+<li><code>show_pars = TRUE</code> will show the structure of the
+parameter vector (at least the length of each component)</li>
+</ul>
+</div>
+<div id="example" class="section level2">
+<h2>Example</h2>
+</div>
 
 
 

@@ -4,5 +4,46 @@ title: "generating simulated data from mixed models"
 
 ## Goals
 
-* power analysis (can be done with packages such as 
+* power analysis (can be done with packages such as `simr` etc.
+* testing methods
+* constructing reproducible examples
+* testing effects of model misspecification
+* benchmarking
+
+## Simulating covariates
+
+* useful functions: `expand.grid`, `rep`, `rnorm` (and other random deviate generators), `sample`, `gl`
+* can use covariate structure from an existing data set
+* see also `lme4::mkDataTemplate`
+
+## `simulate` functions
+
+* many modeling tools have a `simulate` function that simulates new responses *from a fitted model object*
+* some (?which?) have `newdata` or `newparams` arguments
+* **de novo** simulation: `simulate` in `lme4`, `simulate_new` in `glmmTMB`
+
+## *de novo* specification
+
+* formula: specified as in package (one-sided)
+* `newdata`: covariate/grouping variable information
+* `family`: as in package
+* `newparams`: a list of parameter vectors
+
+## parameters for `lme4::simulate`
+
+* `beta`: fixed-effect parameters
+* `theta`: random-effect covariances (scaled Cholesky factor; == log-SD for scalar REs). *Note* that `lme4` reorders the random effects in decreasing order of the number of clusters ...
+* `sigma`: residual SD, shape parameter
+* see `mkParsTemplate`
+
+## parameters for `glmmTMB::simulate_new`
+
+* `beta`: fixed-effect parameters (conditional model)
+* `betazi`, `betadisp`: fixed-effect parameters for zero-inflation (logit scale), dispersion models (log scale)
+* `theta`: for each RE term, log-SD vector *followed by* correlation parameters (see [covariance structure vignette](https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html) for more details)
+* `thetazi`: ditto
+* `psi`: shape parameters for Tweedie/Student-t/etc.
+* `show_pars = TRUE` will show the structure of the parameter vector (at least the length of each component)
+
+## Example
 
