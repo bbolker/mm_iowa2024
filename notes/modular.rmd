@@ -1,8 +1,14 @@
 ---
-title: "generating simulated data from mixed models"
+title: "modular fitting"
 ---
 
 ## Goals
 
-* power analysis (can be done with 
+* allow more flexible constructions, work around package limitations
+* e.g. work-in-progress [phyloglmm](https://zenodo.org/records/2639887), [multimembership models](https://rpubs.com/bbolker/groupmembers), examples from [lmer vignette](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) appendix
+
+## General steps
+
+* construct `X`, `Z`, `Sigma`
+
 

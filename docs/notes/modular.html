@@ -11,7 +11,7 @@
 
 
 
-<title>generating simulated data from mixed models</title>
+<title>modular fitting</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,8 +348,7 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">generating simulated data from mixed
-models</h1>
+<h1 class="title toc-ignore">modular fitting</h1>
 
 </div>
 
@@ -357,93 +356,18 @@ models</h1>
 <div id="goals" class="section level2">
 <h2>Goals</h2>
 <ul>
-<li>power analysis (can be done with packages such as <code>simr</code>
-etc.</li>
-<li>testing methods</li>
-<li>constructing reproducible examples</li>
-<li>testing effects of model misspecification</li>
-<li>benchmarking</li>
+<li>allow more flexible constructions, work around package
+limitations</li>
+<li>e.g. work-in-progress <a href="https://zenodo.org/records/2639887">phyloglmm</a>, <a href="https://rpubs.com/bbolker/groupmembers">multimembership
+models</a>, examples from <a href="https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf">lmer
+vignette</a> appendix</li>
 </ul>
 </div>
-<div id="simulating-covariates" class="section level2">
-<h2>Simulating covariates</h2>
+<div id="general-steps" class="section level2">
+<h2>General steps</h2>
 <ul>
-<li>useful functions: <code>expand.grid</code>, <code>rep</code>,
-<code>rnorm</code> (and other random deviate generators),
-<code>sample</code>, <code>gl</code></li>
-<li>can use covariate structure from an existing data set</li>
-<li>see also <code>lme4::mkDataTemplate</code></li>
+<li>construct <code>X</code>, <code>Z</code>, <code>Sigma</code></li>
 </ul>
-</div>
-<div id="by-hand" class="section level2">
-<h2>by hand</h2>
-<ul>
-<li>traightforward to simulate simple cases by hand, e.g.</li>
-</ul>
-<pre class="r"><code>set.seed(101)
-dd &lt;- data.frame(x = rnorm(100), f = factor(rep(1:10, 10)))
-X &lt;- model.matrix(~x, data = dd)
-beta &lt;- c(1,2)
-b &lt;- rnorm(10)
-mu &lt;- X %*% beta + b[dd$f]
-dd$y &lt;- rnorm(nrow(dd), mean = mu, sd = 1)</code></pre>
-<ul>
-<li>transparent</li>
-<li>gets harder as the models get complicated (vector-valued REs,
-correlation structures, etc.)</li>
-<li>using package functions to simulate minimizes mismatches</li>
-</ul>
-</div>
-<div id="simulate-functions" class="section level2">
-<h2><code>simulate</code> functions</h2>
-<ul>
-<li>many modeling tools have a <code>simulate</code> function that
-simulates new responses <em>from a fitted model object</em></li>
-<li>some (?which?) have <code>newdata</code> or <code>newparams</code>
-arguments</li>
-<li><strong>de novo</strong> simulation: <code>simulate</code> in
-<code>lme4</code>, <code>simulate_new</code> in
-<code>glmmTMB</code></li>
-</ul>
-</div>
-<div id="de-novo-specification" class="section level2">
-<h2><em>de novo</em> specification</h2>
-<ul>
-<li>formula: specified as in package (one-sided)</li>
-<li><code>newdata</code>: covariate/grouping variable information</li>
-<li><code>family</code>: as in package</li>
-<li><code>newparams</code>: a list of parameter vectors</li>
-</ul>
-</div>
-<div id="parameters-for-lme4simulate" class="section level2">
-<h2>parameters for <code>lme4::simulate</code></h2>
-<ul>
-<li><code>beta</code>: fixed-effect parameters</li>
-<li><code>theta</code>: random-effect covariances (scaled Cholesky
-factor; == log-SD for scalar REs). <em>Note</em> that <code>lme4</code>
-reorders the random effects in decreasing order of the number of
-clusters …</li>
-<li><code>sigma</code>: residual SD, shape parameter</li>
-<li>see <code>mkParsTemplate</code></li>
-</ul>
-</div>
-<div id="parameters-for-glmmtmbsimulate_new" class="section level2">
-<h2>parameters for <code>glmmTMB::simulate_new</code></h2>
-<ul>
-<li><code>beta</code>: fixed-effect parameters (conditional model)</li>
-<li><code>betazi</code>, <code>betadisp</code>: fixed-effect parameters
-for zero-inflation (logit scale), dispersion models (log scale)</li>
-<li><code>theta</code>: for each RE term, log-SD vector <em>followed
-by</em> correlation parameters (see <a href="https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html">covariance
-structure vignette</a> for more details)</li>
-<li><code>thetazi</code>: ditto</li>
-<li><code>psi</code>: shape parameters for Tweedie/Student-t/etc.</li>
-<li><code>show_pars = TRUE</code> will show the structure of the
-parameter vector (at least the length of each component)</li>
-</ul>
-</div>
-<div id="example" class="section level2">
-<h2>Example</h2>
 </div>
 
 

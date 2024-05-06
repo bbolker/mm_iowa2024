@@ -16,6 +16,24 @@ title: "generating simulated data from mixed models"
 * can use covariate structure from an existing data set
 * see also `lme4::mkDataTemplate`
 
+## by hand
+
+* traightforward to simulate simple cases by hand, e.g.
+
+```{r sim1}
+set.seed(101)
+dd <- data.frame(x = rnorm(100), f = factor(rep(1:10, 10)))
+X <- model.matrix(~x, data = dd)
+beta <- c(1,2)
+b <- rnorm(10)
+mu <- X %*% beta + b[dd$f]
+dd$y <- rnorm(nrow(dd), mean = mu, sd = 1)
+```
+
+* transparent
+* gets harder as the models get complicated (vector-valued REs, correlation structures, etc.)
+* using package functions to simulate minimizes mismatches
+
 ## `simulate` functions
 
 * many modeling tools have a `simulate` function that simulates new responses *from a fitted model object*
