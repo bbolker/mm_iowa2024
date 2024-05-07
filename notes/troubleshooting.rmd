@@ -9,6 +9,13 @@ require("knitr")
 knitr::opts_knit$set(root.dir = here::here())
 ```
 
+```{r pkgs, message=FALSE, warning = FALSE}
+library(tidyverse)
+library(broom.mixed)
+library(lme4)
+library(glmmTMB)
+```
+
 # overview
 
 ## obligatory Tolstoy quote

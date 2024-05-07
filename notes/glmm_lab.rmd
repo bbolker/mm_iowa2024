@@ -15,7 +15,8 @@ require("knitr")
 knitr::opts_knit$set(root.dir = here::here())
 ```
 
-```{r pkgs,message=FALSE}
+```{r pkgs,message=FALSE, warning = FALSE}
+library(tidyverse); theme_set(theme_bw())
 library(lme4)
 library(glmmTMB)
 library(aods3)
@@ -89,6 +90,9 @@ aa <- allFit(g1max)
 source("R/allFit_utils.R")
 glance_allfit_NLL(aa)
 plot_allfit(aa)
+```
+
+```{r sdcor_allfit, warning = FALSE, fig.width = 12}
 plot_allfit(aa, keep_effects = "ran_pars")
 ```
 
