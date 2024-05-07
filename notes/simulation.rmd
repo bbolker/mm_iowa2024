@@ -81,7 +81,7 @@ dd$y <- rnorm(nrow(dd), mean = mu, sd = 1)
 
 ## lme4 parameterization
 
-* (`lme4` uses a *scaled* Cholesky factorization, i.e. $\Sigma = \sigma^2_{\textrm{resid}} \Lambda \Lambda^\top$)
+* `lme4` uses a *scaled* Cholesky factorization, i.e. $\Sigma = \sigma^2_{\textrm{resid}} \Lambda \Lambda^\top$
 * singular iff any $\Lambda_{ii} = 0$. In practice we report singularity if $\Lambda_{ii} < 10^{-4}$
 * use "box-constrained" nonlinear optimization to set lower bounds on diagonal elements of $\Lambda$
 * translation isn't so nice, e.g. for a 3×3 matrix we get
@@ -137,6 +137,13 @@ $$
 * For a single correlation parameter $\theta_0$, this works out to $\rho = \theta_0/\sqrt{1+\theta_0^2}$
 * **Advantages**: easier to constrain/put priors on SDs separately. Correlation matrix not much harder to deal with.
 * **Disadvantages**: log-SD parameterization is more awkward for *singular fits*
+* for *structured* covariance matrices, see [covariance structure vignette](https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html)
+
+## GLMM family parameterizations
+
+* for conditional distributions with dispersion/shape parameters, need to know the parameterization being used
+* e.g. negative binomial, Tweedie, etc. (typically log-shape or log-dispersion)
+* zero-inflation parameters on logit scale
 
 ## Example
 

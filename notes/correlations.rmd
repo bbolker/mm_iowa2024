@@ -1,0 +1,22 @@
+---
+title: "constructing the components of a mixed model"
+header-includes:
+- \usepackage{amsmath}
+- \usepackage{amssymbol}
+- \newcommand{\X}{\boldsymbol X}
+- \newcommand{\J}{\boldsymbol J}
+- \newcommand{\Z}{\boldsymbol Z}
+- \newcommand{\bbeta}{\boldsymbol \beta}
+- \newcommand{\bb}{\boldsymbol b}
+- \newcommand{\bu}{\boldsymbol u}
+- \newcommand{\bLambda}{\boldsymbol \Lambda}
+- \newcommand{\bEta}{\boldsymbol \eta}
+- \newcommand{\btheta}{\boldsymbol \theta}
+- \newcommand{\bzero}{\boldsymbol 0}
+---
+
+
+\newcommand{\bm}[1]{#1}
+
+
+## refs {.refs}

@@ -478,9 +478,9 @@ uniqueness, constrain the diagonal elements <span class="math inline">\(\Lambda_
 <div id="lme4-parameterization" class="section level2">
 <h2>lme4 parameterization</h2>
 <ul>
-<li>(<code>lme4</code> uses a <em>scaled</em> Cholesky factorization,
+<li><code>lme4</code> uses a <em>scaled</em> Cholesky factorization,
 i.e. <span class="math inline">\(\Sigma = \sigma^2_{\textrm{resid}}
-\Lambda \Lambda^\top\)</span>)</li>
+\Lambda \Lambda^\top\)</span></li>
 <li>singular iff any <span class="math inline">\(\Lambda_{ii} =
 0\)</span>. In practice we report singularity if <span class="math inline">\(\Lambda_{ii} &lt; 10^{-4}\)</span></li>
 <li>use “box-constrained” nonlinear optimization to set lower bounds on
@@ -548,6 +548,18 @@ on the diagonal …</li>
 separately. Correlation matrix not much harder to deal with.</li>
 <li><strong>Disadvantages</strong>: log-SD parameterization is more
 awkward for <em>singular fits</em></li>
+<li>for <em>structured</em> covariance matrices, see <a href="https://cran.r-project.org/web/packages/glmmTMB/vignettes/covstruct.html">covariance
+structure vignette</a></li>
+</ul>
+</div>
+<div id="glmm-family-parameterizations" class="section level2">
+<h2>GLMM family parameterizations</h2>
+<ul>
+<li>for conditional distributions with dispersion/shape parameters, need
+to know the parameterization being used</li>
+<li>e.g. negative binomial, Tweedie, etc. (typically log-shape or
+log-dispersion)</li>
+<li>zero-inflation parameters on logit scale</li>
 </ul>
 </div>
 <div id="example" class="section level2 unnumbered">

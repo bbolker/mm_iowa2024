@@ -13,7 +13,7 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 * noon - 1 **lunch**
 * [modular fitting](notes/modular.html)
 * [constructing $X$, $Z$, and $\Sigma$](notes/constructing.html)
-* [correlation structures]()
+* [correlation structures](notes/correlations.html)
 * 3-3:15 **break**
 * 4:15-5 open session/Q&A?
 
