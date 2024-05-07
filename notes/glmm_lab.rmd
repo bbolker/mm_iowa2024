@@ -10,6 +10,11 @@ Licensed under the
 [Creative Commons attribution-noncommercial license](http://creativecommons.org/licenses/by-nc/3.0/).
 Please share \& remix noncommercially, mentioning its origin.
 
+```{r knitr,include=FALSE}
+require("knitr")
+knitr::opts_knit$set(root.dir = here::here())
+```
+
 ```{r pkgs,message=FALSE}
 library(lme4)
 library(glmmTMB)
@@ -54,20 +59,40 @@ g1max <- glmer(incidence/size~period+(period|herd),
       weights=size,
       family=binomial,
       control=glmerControl(check.nobs.vs.nRE="warning"))
-VarCorr(g1max)
-eigen(VarCorr(g1max)[[1]])$values
 ```
+
+This doesn't report singularity, **but** it probably should:
+
+```{r check_sing}
+isSingular(g1max)
+isSingular(g1max, tol = 1e-3) ## usual tolerance is 1e-4
+min(eigen(VarCorr(g1max)[[1]])$values)
+```
+
+Tried restarting with
+
+```{r upstart, eval = FALSE}
+update(g1max, start = list(theta = getME(g1max, "theta"), fixef = getME(g1max, "beta")))
+```
+
+but no luck:
 
 Look at `?convergence` ...
 
 ```{r allfit,cache=TRUE,warning=FALSE,message=FALSE}
-source("../R/allFit.R")
-af <- allFit(g1max)
+aa <- allFit(g1max)
 ```
 
 (warnings/messages suppressed)
 
-We can use `summary(af)` to compare all of these fits.
+```{r inspect_allfit}
+source("R/allFit_utils.R")
+glance_allfit_NLL(aa)
+plot_allfit(aa)
+plot_allfit(aa, keep_effects = "ran_pars")
+```
+
+## simplification
 
 - `(period|herd)` vs. `(1|period/herd)` ([positive] compound symmetry)
 
@@ -111,6 +136,11 @@ g1cs <- update(g1max,
                . ~ . - (period|herd) + (1|herd/period))
 ```
 
+```{r int_only}
+g1int <- update(g1max, . ~ . - (period|herd) + (1|herd))
+bbmle::AICtab(g1cs, g1int, g1max)
+```
+
 The latter model is called a **compound symmetry** model, i.e. the variances are the same and the covariances/correlations between all pairs are the same. This is a slightly restricted version of compound symmetry, because (the way we have set it up) only non-negative correlations are possible.
 In general, this is a good way to simplify variation of factor effects across groups when there are many levels of the factor, and when it is plausible to treat the factor levels as exchangeable.
 The simplified (CS) model works fine in this example - but is equivalent (in this case, where there is only one observation per herd per period) to observation-level random effects!
@@ -118,7 +148,7 @@ The simplified (CS) model works fine in this example - but is equivalent (in thi
 ## gopher tortoise data
 
 ```{r g1}
-load("../data/gopherdat2.RData")
+load("data/gopherdat2.RData")
 Gdat$obs <- factor(seq(nrow(Gdat)))
 ```
 Our desired maximal model would be something like
@@ -151,7 +181,7 @@ gmod_lme4_L <- glmer(shells~prev+offset(log(Area))+factor(year)+(1|Site),
 Try full model (except use only a simple fixed effect for the top-level region, `reg`, which has only 3 levels):
 
 ```{r banta1,cache=TRUE}
-load("../data/Banta.RData")
+load("data/Banta.RData")
 t0 <- system.time(
     mp1 <- glmer(total.fruits ~ nutrient*amd +
                  reg + rack + status +
@@ -196,8 +226,8 @@ t2 <- system.time(
 )
 ```
 
-Better (`r round(t2["elapsed"])`), although 
-`glmmTMB` doesn't handle singular fits quite as gracefully ...
+Better (`r round(t2["elapsed"])` seconds), although 
+`glmmTMB` doesn't handle singular fits as gracefully ...
 
 ```{r reduce1,cache=TRUE}
 mp1X2 <- update(mp1X,

@@ -24,6 +24,7 @@ mvbutils?
    * add basic GLM stuff
    * mention BLUPs/conditional means
    * comparisons between SAS, Stata, AS-REML, Julia, Python, ...
+   * **maximal** models
 * basic GLMMs
    * distributions: beta, Tweedie, t, ...
 * troubleshooting: convergence warnings, singular fits, complete separation
