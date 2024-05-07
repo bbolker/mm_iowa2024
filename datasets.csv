@@ -11,3 +11,4 @@
 "AIDS","n",,"aids.csv",,"@dobson_introduction_2008"
 "singing mouse","y","ID","singingmouse.csv",,"@pasch_interspecific_2013"
 "starling","y","subjectnum","starling.Rdata","dataf","Toby Marthews, r-help"
+"fire_diversity","y","flor_realms+biome+biome_FR","ecoreg.rds",,"@moritzrole2023a"

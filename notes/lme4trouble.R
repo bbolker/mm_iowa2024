@@ -371,9 +371,7 @@ ggplot(tt, aes(x = estimate, y = term, colour = optimizer)) +
     theme(axis.text.y = element_blank())
 
 
-tt2 <- tidy(aa, effects = "ran_pars", conf.int = TRUE, conf.method = "profile")
-
-|> select(optimizer, term, estimate, std.error)
+tt2 <- tidy(aa, effects = "ran_pars", conf.int = TRUE, conf.method = "profile") |> select(optimizer, term, estimate, std.error)
 
 ggplot(tt, aes(x = estimate, y = term, colour = optimizer)) +
     geom_point(position = position_dodge(width = 0.2)) +

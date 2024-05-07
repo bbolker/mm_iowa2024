@@ -2,9 +2,10 @@
 title: "Data sets"
 date: "`r format(Sys.time(), '%H:%M %d %B %Y ')`"
 bibliography: glmm.bib
+csl: apa.csl
 ---
 
-Data sets can be found [here](https://github.com/bbolker/goettingen_2019/tree/master/data)
+Data sets can be found [here](https://github.com/bbolker/mm_iowa2024/tree/master/data) (you may need to switch to "raw mode" to download CSV files)
 
 ```{r tab,echo=FALSE}
 library(pander)

@@ -23,4 +23,4 @@ notepages = $(notes:%.rmd=docs/%.html)
 slides = $(wildcard notes/*.rmd)
 slidepages = $(slides:%.rmd=docs/%.slides.html)
 
-pushnotes: $(notepages) docs/schedule.html docs/index.html docs/setup.html
+pushnotes: $(notepages) docs/schedule.html docs/index.html docs/setup.html docs/datasets.html

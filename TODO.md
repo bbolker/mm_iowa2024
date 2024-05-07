@@ -14,8 +14,8 @@ mvbutils?
 * why do location-scale plots differ between performance::check_model() and using lme4 builtins?
 * coef plots comparing Wald and profile CIs for starlings, using `tidy()` + `by_2sd()` ...
 
-### topics
 
+* link R code
 * landscape (Julia, SAS, R, Python, ...)
     * big data?
 * GLMM intro
