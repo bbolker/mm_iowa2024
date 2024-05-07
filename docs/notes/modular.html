@@ -365,9 +365,59 @@ vignette</a> appendix</li>
 </div>
 <div id="general-steps" class="section level2">
 <h2>General steps</h2>
+<ol style="list-style-type: decimal">
+<li>construct <code>X</code>, <code>Z</code>, <code>Sigma</code> in
+appropriate form</li>
+<li>construct objective function (negative log-likelihood/deviance)</li>
+<li>optimize objective function</li>
+<li>package results</li>
+</ol>
+<p><strong>Modifications:</strong> (a) alter components between steps 1
+and 2; (b) write a wrapper function for the objective function and
+optimize it instead</p>
 <ul>
-<li>construct <code>X</code>, <code>Z</code>, <code>Sigma</code></li>
+<li><code>glmer</code> uses a two-stage optimization (first optimizing
+over <span class="math inline">\(\theta\)</span> only, then <span class="math inline">\(\{\theta, \beta\}\)</span>)</li>
 </ul>
+</div>
+<div id="lme4-bare-bones-modular-example" class="section level2">
+<h2><code>lme4</code> bare-bones modular example</h2>
+<pre class="r"><code>library(lme4)</code></pre>
+<pre><code>## Loading required package: Matrix</code></pre>
+<pre class="r"><code>lmod &lt;- lFormula(Reaction ~ Days + (Days|Subject), sleepstudy)
+names(lmod)</code></pre>
+<pre><code>## [1] &quot;fr&quot;      &quot;X&quot;       &quot;reTrms&quot;  &quot;REML&quot;    &quot;formula&quot; &quot;wmsgs&quot;</code></pre>
+<pre class="r"><code>devfun &lt;- do.call(mkLmerDevfun, lmod)
+opt &lt;- optimizeLmer(devfun)
+fit &lt;- mkMerMod(environment(devfun), opt, lmod$reTrms, fr = lmod$fr)</code></pre>
+</div>
+<div id="glmmtmb-bare-bones-modular-example" class="section level2">
+<h2><code>glmmTMB</code> bare-bones modular example</h2>
+<pre class="r"><code>library(glmmTMB)
+## construct components
+m1 &lt;- glmmTMB(count ~ mined + (1|site),
+              family=poisson, data=Salamanders, doFit = FALSE)
+## make TMB object (don&#39;t optimize)
+m2 &lt;- fitTMB(m1, doOptim = FALSE)
+## optimize
+m3 &lt;- with(m2, nlminb(par, objective = fn, gr = gr))
+## construct fitted model object
+m4 &lt;- finalizeTMB(m1, m2, m3)</code></pre>
+</div>
+<div id="glmmtmb-rebuilding-tmb-object" class="section level2">
+<h2><code>glmmTMB</code>, rebuilding TMB object</h2>
+<p>If we modify the components of <code>m1$env$data</code> at this point
+… rebuild TMB structure (<em>may</em> be necessary)</p>
+<pre class="r"><code>m2 &lt;- with(m2$env,
+           TMB::MakeADFun(data,
+                          parameters,
+                          map = map,
+                          random = random,
+                          silent = silent,
+                          DLL = &quot;glmmTMB&quot;))</code></pre>
+</div>
+<div id="examples" class="section level2">
+<h2>examples??</h2>
 </div>
 
 

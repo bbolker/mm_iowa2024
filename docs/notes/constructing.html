@@ -354,7 +354,132 @@ model</h1>
 </div>
 
 
-
+<div id="back-to-the-general-definition" class="section level2">
+<h2>back to the general definition</h2>
+<p><span class="math display">\[
+\begin{split}
+\underbrace{Y_i}_{\text{response}} &amp; \sim
+\overbrace{\text{Distr}}^{\substack{\text{conditional} \\
+\text{distribution}}}(\underbrace{g^{-1}(\eta_i)}_{\substack{\text{inverse}
+\\ \text{link} \\
+\text{function}}},\underbrace{\phi}_{\substack{\text{scale} \\
+\text{parameter}}}) \\
+\underbrace{\boldsymbol \eta}_{\substack{\text{linear} \\
+\text{predictor}}} &amp;
+=
+\underbrace{\boldsymbol X\boldsymbol \beta}_{\substack{\text{fixed} \\
+\text{effects}}} +
+\underbrace{\boldsymbol Z\boldsymbol b}_{\substack{\text{random} \\
+\text{effects}}}
+\\
+\underbrace{\boldsymbol b}_{\substack{\text{conditional} \\
+\text{modes}}}  &amp;
+\sim \text{MVN}(\boldsymbol 0, \underbrace{\Sigma(\boldsymbol
+\theta)}_{\substack{\text{variance-} \\ \text{covariance} \\
+\text{matrix}}})
+\end{split}
+\]</span></p>
+</div>
+<div id="fixed-effect-model-matrix" class="section level2">
+<h2>fixed-effect model matrix</h2>
+<ul>
+<li><span class="math inline">\(\boldsymbol X\)</span> (<span class="math inline">\(n \times p_\textrm{fix}\)</span>)</li>
+<li><strong>terms</strong>, <strong>input variables</strong>,
+<strong>predictor variables</strong></li>
+<li><em>Wilkinson-Rogers</em> notation <span class="citation">[@WilkinsonRogers1973]</span></li>
+<li>defined by <code>model.matrix()</code>, <code>terms()</code> <span class="citation">[@chambersStatistical1992a]</span></li>
+<li>details hard to find!</li>
+<li>default intercept term (<code>1</code>); <code>-1</code> or
+<code>+0</code> to suppress</li>
+<li>numeric input variables → single predictor variable</li>
+<li>variable transformations on the fly</li>
+<li><em>contrasts</em> automatically constructed for factors (unless
+<code>+0</code>)</li>
+<li>interaction <code>:</code> = pairwise products of predictor
+variables</li>
+<li>data-dependent bases: <code>poly()</code>,
+<code>splines::ns()</code>, etc.</li>
+</ul>
+</div>
+<div id="example" class="section level2">
+<h2>example</h2>
+<pre class="r"><code>terms(~ mpg * disp, data = mtcars)
+model.matrix(hp~ mpg * disp, data = mtcars)</code></pre>
+</div>
+<div id="random-effect-formulas" class="section level2">
+<h2>random-effect formulas</h2>
+<ul>
+<li>formula: typically <code>( f | g )</code> (<code>f</code> = varying
+term, <code>g</code> = cluster/grouping variable)</li>
+<li><code>g</code> can be expanded into separate terms
+(<code>(f | g1/g2)</code> → <code>(f | g1 + g1:g2)</code>);
+<code>*</code>, <code>+</code> <em>may</em> be expanded
+(<code>reformulas</code> package)</li>
+<li><code>f</code> = any set of terms that vary <em>within</em> levels
+of <code>g</code></li>
+<li>dialect differences
+<ul>
+<li>random component may be specified separately from fixed
+(e.g. <code>nlme::lme</code>, <code>MCMCglmm</code>)</li>
+<li>… or as part of the same formula (e.g. <code>lme4</code>,
+<code>glmmTMB</code>)</li>
+<li>covariance structures may be specified (<code>brms</code>,
+<code>MCMCglmm</code>, <code>glmmTMB</code>) as (e.g.)
+<code>cs( f | g )</code></li>
+<li>AS-REML-like syntax (e.g. <code>MCMCglmm</code>):
+e.g. <code>~us(f):g</code></li>
+<li>extensions for multi-membership models, shared variables between
+terms, …</li>
+</ul></li>
+<li>each RE term (after separation) is independent</li>
+</ul>
+</div>
+<div id="from-re-formula-to-model-objects-re-model-matrix-boldsymbol-z" class="section level2">
+<h2>from RE formula to model objects: RE model matrix <span class="math inline">\(\boldsymbol Z\)</span></h2>
+<ul>
+<li>details in <a href="https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf">lmer
+vignette</a></li>
+<li><span class="math inline">\(\boldsymbol Z\)</span>
+<ul>
+<li><em>Khatri-Rao product</em> of <span class="math inline">\(\boldsymbol J\)</span> (indicator matrix for
+cluster variable <code>g</code>) with model matrix for
+<code>f</code></li>
+<li>e.g.:</li>
+</ul></li>
+</ul>
+<pre class="r"><code>library(Matrix)
+f &lt;- factor(rep(1:3, each = 2))
+Ji &lt;- t(as(f, &quot;sparseMatrix&quot;))
+Xi &lt;- cbind(1, rep.int(c(-1, 1), 3L))
+Zi &lt;- t(Matrix::KhatriRao(t(Ji), t(Xi)))</code></pre>
+<ul>
+<li>make <span class="math inline">\(\boldsymbol J\)</span> a
+<strong>sparse</strong> matrix, <span class="math inline">\(\boldsymbol
+Z\)</span> inherits structure</li>
+<li>concatenate <span class="math inline">\(\boldsymbol Z\)</span> from
+multiple terms columnwise</li>
+</ul>
+</div>
+<div id="from-re-formula-to-model-objects-re-covariance-matrix-sigma" class="section level2">
+<h2>from RE formula to model objects: RE covariance matrix <span class="math inline">\(\Sigma\)</span></h2>
+<ul>
+<li><span class="math inline">\(\Sigma_i\)</span> (for a single term) is
+block-diagonal (one block per cluster); terms are blocks too</li>
+<li>we may be interested in the lower-triangular <em>Cholesky
+factor</em> (<span class="math inline">\(\Sigma = \Lambda
+\Lambda^\top\)</span>)
+<ul>
+<li>or the <em>precision matrix</em> …</li>
+</ul></li>
+<li><code>lme4</code></li>
+</ul>
+</div>
+<div id="covariance-matrix-parameterizations" class="section level2">
+<h2>covariance matrix parameterizations</h2>
+</div>
+<div id="refs" class="section level2 refs">
+<h2 class="refs">refs</h2>
+</div>
 
 
 

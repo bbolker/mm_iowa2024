@@ -11,8 +11,8 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 * 10:45-11:15 [simulating mixed models](notes/simulation.html)
 * 11:15-noon [diagnostics and troubleshooting](notes/troubleshooting.html)
 * noon - 1 **lunch**
-* modular fitting
-* constructing $X$, $Z$, and $\Sigma$
+* [modular fitting](notes/modular.html)
+* [constructing $X$, $Z$, and $\Sigma$](notes/constructing.html)
 * correlation structures
 * 3-3:15 **break**
 * 4:15-5 open session/Q&A?

@@ -16,6 +16,8 @@ mvbutils?
 
 ### topics
 
+* landscape (Julia, SAS, R, Python, ...)
+    * big data?
 * GLMM intro
    * new 'universe' picture?
    * add mmd_utils/fire picture?

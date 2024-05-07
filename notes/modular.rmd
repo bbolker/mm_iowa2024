@@ -9,6 +9,54 @@ title: "modular fitting"
 
 ## General steps
 
-* construct `X`, `Z`, `Sigma`
+1. construct `X`, `Z`, `Sigma` in appropriate form
+2. construct objective function (negative log-likelihood/deviance)
+3. optimize objective function
+4. package results
 
+**Modifications:** (a) alter components between steps 1 and 2; (b) write a wrapper function for the objective function and optimize it instead
 
+* `glmer` uses a two-stage optimization (first optimizing over $\theta$ only, then $\{\theta, \beta\}$)
+
+## `lme4` bare-bones modular example
+
+```{r}
+library(lme4)
+lmod <- lFormula(Reaction ~ Days + (Days|Subject), sleepstudy)
+names(lmod)
+devfun <- do.call(mkLmerDevfun, lmod)
+opt <- optimizeLmer(devfun)
+fit <- mkMerMod(environment(devfun), opt, lmod$reTrms, fr = lmod$fr)
+```
+
+## `glmmTMB` bare-bones modular example
+
+```{r glmmTMB-1}
+library(glmmTMB)
+## construct components
+m1 <- glmmTMB(count ~ mined + (1|site),
+              family=poisson, data=Salamanders, doFit = FALSE)
+## make TMB object (don't optimize)
+m2 <- fitTMB(m1, doOptim = FALSE)
+## optimize
+m3 <- with(m2, nlminb(par, objective = fn, gr = gr))
+## construct fitted model object
+m4 <- finalizeTMB(m1, m2, m3)
+```
+
+## `glmmTMB`, rebuilding TMB object
+
+If we modify the components of `m1$env$data` at this point ...
+rebuild TMB structure (*may* be necessary)
+
+```{r glmmTMB-2}
+m2 <- with(m2$env,
+           TMB::MakeADFun(data,
+                          parameters,
+                          map = map,
+                          random = random,
+                          silent = silent,
+                          DLL = "glmmTMB"))
+```
+
+## examples??
