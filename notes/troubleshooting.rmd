@@ -1,6 +1,13 @@
 ---
 title: "mixed model troubleshooting"
+bibliography: "../glmm.bib"
+csl: ../nature.csl
 ---
+
+```{r knitr,include=FALSE}
+require("knitr")
+knitr::opts_knit$set(root.dir = here::here())
+```
 
 # overview
 
@@ -53,7 +60,7 @@ title: "mixed model troubleshooting"
 
 * eigenvalues of the Hessian give curvature in the principal directions (== eigenvectors)
 
-```{r echo = FALSE}
+```{r hesspix,echo = FALSE}
 ## add picture: curve3d + genrose
 cc <- emdbook::curve3d(x^2+y^2+3*x*y, from = c(-1, -1), to = c(1,1),
                        sys3d = "contour", ann = FALSE, axes = FALSE,
@@ -71,7 +78,7 @@ box()
 * extract Hessian and see *which* eigenvector(s) is/are associated with the minimal eigenvalue(s)
    * extracting Hessian often requires some digging, e.g. `model@optinfo$derivs` (`lme4`) or `model$sdr$cov.fixed` (`glmmTMB`))
    
-**example**
+**example?**
 
 ## more examples
 
@@ -96,7 +103,7 @@ m1 <- MASS::glm.nb(x ~ 1, data = dd)
 environment(m1$family$variance)$.Theta
 ```
 * **solutions**
-   * try to ignore it
+   * ignore it
    * revert to Poisson model
    * use a *quasi-likelihood* model (fit Poisson, then adjust SEs etc.)
    * use a distribution that allows underdispersion: (glmmTMB) `genpois`, `compois`, or an *ordinal* model
@@ -105,9 +112,8 @@ environment(m1$family$variance)$.Theta
 
 * *zero-inflation* models fit a finite mixture of "structural" and "sampling" zeros
 * "many zeros does not mean zero inflation" [@warton_many_2005]
-* if 
-
-
+* log-odds(0) $\to -\infty$
+* similar to NB case
 
 ## `lme4` convergence warnings
 
@@ -115,16 +121,100 @@ environment(m1$family$variance)$.Theta
 
 * extra check on top of optimizer-based convergence checks
 * 
-## diagnostics
+## diagnosing convergence warnings
 
 * `allFit`
 * are parameters close enough?
 * what is the distribution of negative log-likelihoods?
 * which parameters are unstable?
 
+```{r conv1}
+library(lme4)
+source("R/conv_ex.R")
+model1 <- lmer(eval~1 + group*(emint_n + grade_n) + (1 + grade_n+emint_n|class), data=dd)
+```
+
+Scaling (autoscaling is [on the list for lme4](https://github.com/lme4/lme4/issues/731)) ...
+
+```r
+double_cols <- sapply(dd, is.double)
+dd_sc <- dd
+dd_sc[double_cols] <- sapply(dd[double_cols], \(x) drop(scale(x)))
+model2 <- update(model1, data =  dd_sc)
+```
+
+```{r}
+library(broom.mixed) ## for tidy()
+library(ggplot2)
+aa <- allFit(model1)
+tt <- tidy(aa)
+```
+
+Check log-likelihoods: do most or all optimizers agree?
+
+```{r}
+NLL <- -1*summary(aa)$llik
+sort(NLL - min(NLL))
+```
+
+Run convergence check by hand:
+
+```{r}
+checkConv(model1@optinfo$derivs, model1@optinfo$val, lmerControl()$checkConv, model1@lower)
+```
+
+(in this case it is the *scaled* gradient that fails the test).
+
+Check 
+
+```{r}
+pd <- position_dodge(width = 0.5)
+gg1 <- tt |> dplyr::filter(effect == "fixed") |>
+    ggplot(aes(y = term, x = estimate, colour = optimizer)) +
+    geom_pointrange(aes(xmin=estimate-2*std.error, xmax = estimate + 2*std.error),
+                    position = pd)
+print(gg1)
+```
+
+Check random effect components (may or may not be of interest):
+
+```{r}
+tt2 <- (tt
+    |> dplyr::filter(effect == "ran_pars")
+    |> dplyr::mutate(is_cor = startsWith(term, "cor"))
+)
+gg2 <- 
+    ggplot(tt2, aes(y = term, x = estimate, colour = optimizer)) +
+    geom_point(position = pd) +
+    facet_wrap(~is_cor, scale = "free", labeller = label_both)
+
+print(gg2)
+```
+
 ## singular fits
 
-* 
+* best-fit value of a variance can be 0
+* e.g. expected among-group variance in a 1-way ANOVA is $\sigma^2_b + (\sigma^2_w)/n$. If we substitute sample
+values for these quantities we can get a method-of-moments estimate <0 ...
+* [@pryseley_estimating_2011; @bridgeNegative2024]
+* `lme4` is a little more graceful than `glmmTMB`; fits
+
+```{r sim_sing, cache=TRUE}
+simfun <- function() {
+    dd <- expand.grid(f = factor(1:3), rep = 1:10)
+    dd$y <- suppressMessages(simulate(~ 1 + (1|f),
+                     newdata = dd,
+                     newparams = list(beta = 0, theta = 0.1, sigma = 1),
+                     family = gaussian))[[1]]
+    m <- lmer(y ~ 1 + (1 | f), data = dd,
+              control = lmerControl(calc.derivs=FALSE, check.conv.singular = "ignore"))
+    getME(m, "theta")
+}
+simfun()
+set.seed(101)
+thvec <- replicate(500, simfun())
+hist(thvec, breaks = 50)
+```
 
 ```{r}
 library(lme4)
@@ -159,14 +249,10 @@ logLik(m3)
 ## regularization
 
 * `blme`
-* other possibilities?
+* priors in `glmmTMB` (new)
 
 ## complete separation (GLM(M)-specific)
 
 * add priors
 
-## other boundary-type problems (extended GLM(M)-specific)
-
-* zero-inflation
-* dispersion parameters (e.g. negative binomial)
 

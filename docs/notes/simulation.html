@@ -251,6 +251,28 @@ if (window.hljs) {
 
 
 
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
 
 
 
@@ -442,8 +464,101 @@ structure vignette</a> for more details)</li>
 parameter vector (at least the length of each component)</li>
 </ul>
 </div>
-<div id="example" class="section level2">
-<h2>Example</h2>
+<div id="parameterization-of-unstructured-covariance-matrices" class="section level2">
+<h2>parameterization of “unstructured” covariance matrices</h2>
+<ul>
+<li>positive semi-definiteness (all eigenvalues of a symmetric matrix
+<span class="math inline">\(\ge 0\)</span>) is an awkward
+constraint</li>
+<li>lots of different options<span class="citation"><sup>1</sup></span></li>
+<li>most use <em>Cholesky factorization</em>: <span class="math inline">\(\Sigma = \Lambda \Lambda^\top\)</span>. For
+uniqueness, constrain the diagonal elements <span class="math inline">\(\Lambda_{ii} \geq 0\)</span>.</li>
+</ul>
+</div>
+<div id="lme4-parameterization" class="section level2">
+<h2>lme4 parameterization</h2>
+<ul>
+<li>(<code>lme4</code> uses a <em>scaled</em> Cholesky factorization,
+i.e. <span class="math inline">\(\Sigma = \sigma^2_{\textrm{resid}}
+\Lambda \Lambda^\top\)</span>)</li>
+<li>singular iff any <span class="math inline">\(\Lambda_{ii} =
+0\)</span>. In practice we report singularity if <span class="math inline">\(\Lambda_{ii} &lt; 10^{-4}\)</span></li>
+<li>use “box-constrained” nonlinear optimization to set lower bounds on
+diagonal elements of <span class="math inline">\(\Lambda\)</span></li>
+<li>translation isn’t so nice, e.g. for a 3×3 matrix we get <span class="math display">\[
+\Lambda \Lambda^\top =
+\left(
+\begin{array}{ccc}
+\theta_1 &amp; 0 &amp; 0 \\
+\theta_2 &amp; \theta_4 &amp; 0 \\
+\theta_3 &amp; \theta_5 &amp; \theta_6
+\end{array}
+\right)
+\left(
+\begin{array}{ccc}
+\theta_1 &amp; \theta_2 &amp; \theta_3 \\
+0 &amp; \theta_4 &amp; \theta_5 \\
+0 &amp; 0 &amp; \theta_6
+\end{array}
+\right)
+=
+\left(
+\begin{array}{ccc}
+\theta_1^2 &amp; \theta_1 \theta_2 &amp;  \theta_1 \theta_3 \\
+\theta_1 \theta_2   &amp; \theta_2^2 + \theta_4^2 &amp; \theta_2
+\theta_3 + \theta_4 \theta_5 \\
+\theta_1 \theta_3  &amp; \theta_2 \theta_3 + \theta_4 \theta_5  &amp;
+\theta_3^2 + \theta_5^2 + \theta_6^2
+\end{array}
+\right)
+\]</span> so e.g. constraining <span class="math inline">\(\sigma^2_3 =
+\theta_3^2 + \theta_5^2 + \theta_6^2\)</span> to a particular value is a
+nuisance.</li>
+<li>little-used/poorly documented conversion functions at
+<code>?lme4::vcconv</code></li>
+<li>e.g.</li>
+</ul>
+<pre class="r"><code>corrsd &lt;- matrix(c(2.0, 0.4, 0.1,
+                   0.4, 1.0, 0.3,
+                   0.1, 0.3, 3.0),
+                 3, 3)
+get_lower_tri &lt;- function(x) x[lower.tri(x, diag = TRUE)]
+corrsd |&gt; lme4:::sdcor2cov() |&gt; chol() |&gt; t() |&gt; get_lower_tri()</code></pre>
+<pre><code>## [1] 2.0000000 0.4000000 0.3000000 0.9165151 0.8510498 2.8610687</code></pre>
+</div>
+<div id="glmmtmb-parameterization" class="section level2">
+<h2>glmmTMB parameterization</h2>
+<ul>
+<li>first separates the covariance matrix into variances and
+correlations</li>
+<li><span class="math inline">\(\Sigma = \textrm{Diag}(S) C
+\textrm{Diag}(S)\)</span></li>
+<li><span class="math inline">\(S\)</span> is the vector of standard
+deviations (parameterized as <em>log</em> SDs to ensure positivity)</li>
+<li><span class="math inline">\(C\)</span> is the correlation matrix,
+parameterized as <span class="math display">\[
+D^{-1/2} L L^\top D^{-1/2}
+\]</span> where <span class="math inline">\(L\)</span> is strictly lower
+triangular, <span class="math inline">\(D = \textrm{diag}(L
+L^\top)\)</span></li>
+<li>this is just to make sure we get a positive definite matrix with 1
+on the diagonal …</li>
+<li>For a single correlation parameter <span class="math inline">\(\theta_0\)</span>, this works out to <span class="math inline">\(\rho = \theta_0/\sqrt{1+\theta_0^2}\)</span></li>
+<li><strong>Advantages</strong>: easier to constrain/put priors on SDs
+separately. Correlation matrix not much harder to deal with.</li>
+<li><strong>Disadvantages</strong>: log-SD parameterization is more
+awkward for <em>singular fits</em></li>
+</ul>
+</div>
+<div id="example" class="section level2 unnumbered">
+<h2 class="unnumbered">Example</h2>
+<div id="refs" class="references csl-bib-body" line-spacing="2">
+<div id="ref-pinheiro_unconstrained_1996" class="csl-entry">
+<div class="csl-left-margin">1. </div><div class="csl-right-inline">Pinheiro, J. C. &amp; Bates, D. M. <a href="https://doi.org/10.1007/BF00140873">Unconstrained parametrizations
+for variance-covariance matrices</a>. <em>Statistics and Computing</em>
+<strong>6</strong>, 289–296 (1996).</div>
+</div>
+</div>
 </div>
 
 

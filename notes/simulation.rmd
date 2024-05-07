@@ -1,6 +1,16 @@
 ---
 title: "generating simulated data from mixed models"
+header-includes:
+- \usepackage{amsmath}
+- \usepackage{amssymbol}
+bibliography: "../glmm.bib"
+csl: ../nature.csl
 ---
+
+```{r knitr,include=FALSE}
+require("knitr")
+knitr::opts_knit$set(root.dir = here::here())
+```
 
 ## Goals
 
@@ -62,6 +72,71 @@ dd$y <- rnorm(nrow(dd), mean = mu, sd = 1)
 * `thetazi`: ditto
 * `psi`: shape parameters for Tweedie/Student-t/etc.
 * `show_pars = TRUE` will show the structure of the parameter vector (at least the length of each component)
+
+## parameterization of "unstructured" covariance matrices
+
+* positive semi-definiteness (all eigenvalues of a symmetric matrix $\ge 0$) is an awkward constraint
+* lots of different options [@pinheiro_unconstrained_1996]
+* most use *Cholesky factorization*: $\Sigma = \Lambda \Lambda^\top$. For uniqueness, constrain the diagonal elements $\Lambda_{ii} \geq 0$.
+
+## lme4 parameterization
+
+* (`lme4` uses a *scaled* Cholesky factorization, i.e. $\Sigma = \sigma^2_{\textrm{resid}} \Lambda \Lambda^\top$)
+* singular iff any $\Lambda_{ii} = 0$. In practice we report singularity if $\Lambda_{ii} < 10^{-4}$
+* use "box-constrained" nonlinear optimization to set lower bounds on diagonal elements of $\Lambda$
+* translation isn't so nice, e.g. for a 3×3 matrix we get
+$$
+\Lambda \Lambda^\top =
+\left(
+ \begin{array}{ccc}
+ \theta_1 & 0 & 0 \\
+\theta_2 & \theta_4 & 0 \\
+ \theta_3 & \theta_5 & \theta_6
+ \end{array}
+ \right)
+\left(
+ \begin{array}{ccc}
+ \theta_1 & \theta_2 & \theta_3 \\
+ 0 & \theta_4 & \theta_5 \\
+ 0 & 0 & \theta_6
+ \end{array}
+\right)
+ = 
+ \left(
+ \begin{array}{ccc}
+ \theta_1^2 & \theta_1 \theta_2 &  \theta_1 \theta_3 \\
+ \theta_1 \theta_2   & \theta_2^2 + \theta_4^2 & \theta_2 \theta_3 + \theta_4 \theta_5 \\
+ \theta_1 \theta_3  & \theta_2 \theta_3 + \theta_4 \theta_5  & \theta_3^2 + \theta_5^2 + \theta_6^2
+ \end{array}
+ \right)
+ $$
+so e.g. constraining $\sigma^2_3 = \theta_3^2 + \theta_5^2 + \theta_6^2$ to a particular value is a nuisance.
+* little-used/poorly documented conversion functions at `?lme4::vcconv`
+* e.g.
+
+```{r conv}
+corrsd <- matrix(c(2.0, 0.4, 0.1,
+                   0.4, 1.0, 0.3,
+                   0.1, 0.3, 3.0),
+                 3, 3)
+get_lower_tri <- function(x) x[lower.tri(x, diag = TRUE)]
+corrsd |> lme4:::sdcor2cov() |> chol() |> t() |> get_lower_tri()
+```
+
+## glmmTMB parameterization
+
+* first separates the covariance matrix into variances and correlations
+* $\Sigma = \textrm{Diag}(S) C \textrm{Diag}(S)$
+* $S$ is the vector of standard deviations (parameterized as *log* SDs to ensure positivity)
+* $C$ is the correlation matrix, parameterized as 
+$$
+D^{-1/2} L L^\top D^{-1/2}
+$$
+   where $L$ is strictly lower triangular, $D = \textrm{diag}(L L^\top)$
+* this is just to make sure we get a positive definite matrix with 1 on the diagonal ...
+* For a single correlation parameter $\theta_0$, this works out to $\rho = \theta_0/\sqrt{1+\theta_0^2}$
+* **Advantages**: easier to constrain/put priors on SDs separately. Correlation matrix not much harder to deal with.
+* **Disadvantages**: log-SD parameterization is more awkward for *singular fits*
 
 ## Example
 
