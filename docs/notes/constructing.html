@@ -251,6 +251,28 @@ if (window.hljs) {
 
 
 
+<style type="text/css">
+
+div.csl-bib-body { }
+div.csl-entry {
+clear: both;
+}
+.hanging div.csl-entry {
+margin-left:2em;
+text-indent:-2em;
+}
+div.csl-left-margin {
+min-width:2em;
+float:left;
+}
+div.csl-right-inline {
+margin-left:2em;
+padding-left:1em;
+}
+div.csl-indent {
+margin-left: 2em;
+}
+</style>
 
 
 
@@ -386,8 +408,8 @@ model</h1>
 <li><span class="math inline">\(\boldsymbol X\)</span> (<span class="math inline">\(n \times p_\textrm{fix}\)</span>)</li>
 <li><strong>terms</strong>, <strong>input variables</strong>,
 <strong>predictor variables</strong></li>
-<li><em>Wilkinson-Rogers</em> notation <span class="citation">[@WilkinsonRogers1973]</span></li>
-<li>defined by <code>model.matrix()</code>, <code>terms()</code> <span class="citation">[@chambersStatistical1992a]</span></li>
+<li><em>Wilkinson-Rogers</em> notation<span class="citation"><sup>1</sup></span></li>
+<li>defined by <code>model.matrix()</code>, <code>terms()</code><span class="citation"><sup>2</sup></span></li>
 <li>details hard to find!</li>
 <li>default intercept term (<code>1</code>); <code>-1</code> or
 <code>+0</code> to suppress</li>
@@ -438,7 +460,7 @@ terms, …</li>
 <h2>from RE formula to model objects: RE model matrix <span class="math inline">\(\boldsymbol Z\)</span></h2>
 <ul>
 <li>details in <a href="https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf">lmer
-vignette</a></li>
+vignette</a><span class="citation"><sup>3</sup></span></li>
 <li><span class="math inline">\(\boldsymbol Z\)</span>
 <ul>
 <li><em>Khatri-Rao product</em> of <span class="math inline">\(\boldsymbol J\)</span> (indicator matrix for
@@ -474,11 +496,27 @@ factor</em> (<span class="math inline">\(\Sigma = \Lambda
 <li><code>lme4</code></li>
 </ul>
 </div>
-<div id="covariance-matrix-parameterizations" class="section level2">
-<h2>covariance matrix parameterizations</h2>
+<div id="references" class="section level2 unnumbered refs">
+<h2 class="unnumbered refs">references</h2>
+<div id="refs" class="references csl-bib-body" line-spacing="2">
+<div id="ref-WilkinsonRogers1973" class="csl-entry">
+<div class="csl-left-margin">1. </div><div class="csl-right-inline">Wilkinson, G. N. &amp; Rogers, C. E. <a href="https://doi.org/10.2307/2346786">Symbolic description of factorial
+models for analysis of variance</a>. <em>Applied Statistics</em>
+<strong>22</strong>, 392–399 (1973).</div>
 </div>
-<div id="refs" class="section level2 refs">
-<h2 class="refs">refs</h2>
+<div id="ref-chambersStatistical1992a" class="csl-entry">
+<div class="csl-left-margin">2. </div><div class="csl-right-inline">Chambers, J. M. &amp; Hastie, T. J. Statistical
+<span>Models</span>. in <em>Statistical <span>Models</span> in
+<span>S</span></em> (Routledge, 1992).</div>
+</div>
+<div id="ref-bates_fitting_2015" class="csl-entry">
+<div class="csl-left-margin">3. </div><div class="csl-right-inline">Bates, D., Mächler, M., Bolker, B. M. &amp;
+Walker, S. C. <a href="https://doi.org/10.18637/jss.v067.i01">Fitting
+linear mixed-effects models using <span class="nocase">lme4</span></a>.
+<em>Journal of Statistical Software</em> <strong>67</strong>, 1–48
+(2015).</div>
+</div>
+</div>
 </div>
 
 

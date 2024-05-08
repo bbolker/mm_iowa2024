@@ -1,5 +1,7 @@
 ---
 title: "constructing the components of a mixed model"
+bibliography: "../glmm.bib"
+csl: ../nature.csl
 header-includes:
 - \usepackage{amsmath}
 - \usepackage{amssymbol}
@@ -69,7 +71,7 @@ model.matrix(hp~ mpg * disp, data = mtcars)
 	
 ## from RE formula to model objects: RE model matrix $\Z$
 
-* details in [lmer vignette](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf)
+* details in [lmer vignette](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) [@bates_fitting_2015]
 * $\Z$
    * *Khatri-Rao product* of $\J$ (indicator matrix for cluster variable `g`) with model matrix for `f`
    * e.g.:
@@ -90,6 +92,4 @@ Zi <- t(Matrix::KhatriRao(t(Ji), t(Xi)))
    * or the *precision matrix* ...
 * `lme4`
 
-## covariance matrix parameterizations
-
-## refs {.refs}
+## references {.refs}

@@ -10,6 +10,7 @@ link-citations: true
 header-includes:
 - \usepackage{amsmath}
 - \usepackage{amssymbol}
+- \newcommand{\y}{\boldsymbol y}
 - \newcommand{\X}{\boldsymbol X}
 - \newcommand{\Z}{\boldsymbol Z}
 - \newcommand{\bbeta}{\boldsymbol \beta}
@@ -398,7 +399,7 @@ Estimation
 -   Best fit is a compromise between two components\
     (consistency of data with fixed effects and conditional modes;
     consistency of random effect with RE distribution)
-- ${\cal L}(\bbeta,\btheta) = \int {\cal L}(\y|\beta,b) {\cal L}(\bb|\Sigma(\theta) \, d\bb$
+- $\underbrace{{\cal L}(\bbeta,\btheta)}_{\substack{\text{marginal} \\ \text{likelihood}}} = \int \underbrace{{\cal L}(\y|\beta,b)}_{\substack{\text{conditional} \\ \text{likelihood}}} \cdot {\cal L}(\bb|\Sigma(\theta)) \, d\bb$
 
 
 ## ...
@@ -532,7 +533,7 @@ xyplot(Reaction ~ Days, data=sleepstudy,
 penalized quasi-likelihood, Laplace, Gauss-Hermite quadrature, … [@biswas2015];  
     - more care needed for large variance, small clusters (e.g. binary data)
     - flexibility and speed vs. accuracy
-- stochastic (Monte Carlo): frequentist and Bayesian [@booth_maximizing_1999; @sung_monte_2007; @ponciano_hierarchical_2009]
+- stochastic (Monte Carlo): frequentist and Bayesian [@booth_maximizing_1999; @sung_monte_2007; @ponciano_hierarchical_2009]. MCMC, importance sampling
     - (much) slower but flexible and accurate
 
 ## Estimation: *Culcita* [@mckeon_multiple_2012]

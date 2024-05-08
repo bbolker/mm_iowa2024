@@ -22,7 +22,6 @@ mvbutils?
    * new 'universe' picture?
    * add mmd_utils/fire picture?
    * add basic GLM stuff
-   * mention BLUPs/conditional means
    * comparisons between SAS, Stata, AS-REML, Julia, Python, ...
    * **maximal** models
 * basic GLMMs

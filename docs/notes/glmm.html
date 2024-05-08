@@ -571,9 +571,11 @@ use fixed)</li>
 <li>Best fit is a compromise between two components<br />
 (consistency of data with fixed effects and conditional modes;
 consistency of random effect with RE distribution)</li>
-<li><span class="math inline">\({\cal L}(\boldsymbol \beta,\boldsymbol
-\theta) = \int {\cal L}(\y|\beta,b) {\cal L}(\boldsymbol
-b|\Sigma(\theta) \, d\boldsymbol b\)</span></li>
+<li><span class="math inline">\(\underbrace{{\cal L}(\boldsymbol
+\beta,\boldsymbol \theta)}_{\substack{\text{marginal} \\
+\text{likelihood}}} = \int \underbrace{{\cal L}(\boldsymbol
+y|\beta,b)}_{\substack{\text{conditional} \\ \text{likelihood}}} \cdot
+{\cal L}(\boldsymbol b|\Sigma(\theta)) \, d\boldsymbol b\)</span></li>
 </ul>
 </div>
 <div id="section" class="section level2">
@@ -634,7 +636,8 @@ penalized quasi-likelihood, Laplace, Gauss-Hermite quadrature, …<span class="c
 data)</li>
 <li>flexibility and speed vs. accuracy</li>
 </ul></li>
-<li>stochastic (Monte Carlo): frequentist and Bayesian<span class="citation"><sup><a href="#ref-booth_maximizing_1999">8</a>–<a href="#ref-ponciano_hierarchical_2009">10</a></sup></span>
+<li>stochastic (Monte Carlo): frequentist and Bayesian<span class="citation"><sup><a href="#ref-booth_maximizing_1999">8</a>–<a href="#ref-ponciano_hierarchical_2009">10</a></sup></span>. MCMC,
+importance sampling
 <ul>
 <li>(much) slower but flexible and accurate</li>
 </ul></li>
