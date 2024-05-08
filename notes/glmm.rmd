@@ -335,15 +335,17 @@ $$
 \underbrace{\boldsymbol Z \boldsymbol b}_{\substack{\text{random} \\ \text{effects}}}
 \\
 \underbrace{\boldsymbol b}_{\substack{\text{conditional} \\ \text{modes}}}  & 
-\sim \text{MVN}(\boldsymbol 0, \underbrace{\Sigma(\boldsymbol \theta)}_{\substack{\text{variance-} \\ \text{covariance} \\ \text{matrix}}})
+\sim \text{MVN}(\boldsymbol 0, \underbrace{\Sigma(\boldsymbol \theta)}_{\substack{\text{covariance} \\ \text{matrix}}})
 \end{split}
 $$
+
+* the structure of $Z$ and $\Sigma$ reflect one or more underlying categorical *grouping variables* (*clusters*, *blocks*, subjects, etc. etc.) or combinations thereof
 
 ## What are random effects?
 
 A method for …
 
--   accounting for correlations among observations within *clusters* ("levels of the grouping variable")
+-   accounting for correlations among observations within clusters
 -   compromising between\
     *complete pooling* (no among-cluster variance)\
      and *fixed effects* (large among-cluster variance)
@@ -363,6 +365,8 @@ A method for …
 have
 
 ## Why use random effects? (inferential/philosophical)
+
+When you: 
 
 - **do** want to
      - quantify variation among groups
@@ -394,6 +398,7 @@ Estimation
 -   Best fit is a compromise between two components\
     (consistency of data with fixed effects and conditional modes;
     consistency of random effect with RE distribution)
+- ${\cal L}(\bbeta,\btheta) = \int {\cal L}(\y|\beta,b) {\cal L}(\bb|\Sigma(\theta) \, d\bb$
 
 
 ## ...
@@ -498,11 +503,30 @@ xyplot(Reaction ~ Days, data=sleepstudy,
 })
 ```
 
+# A tiny bit about GLMs
+
+## GLMs
+
+- relax assumption of Gaussian conditional distribution
+- classic GLMs from the *exponential (dispersion) family* (binomial, Poisson, Gamma, ...)
+- *link function* and *variance function*
+- some packages (based on MLE) relax the exponential-family requirement (Beta, Student-$t$, Tweedie, skew-normal, ...)
+- still allow/use a link function
+
+## beyond GLMs
+
+- many other variations are possible
+- zero-inflated (altered) and hurdle models
+- censored data
+- scale-location models (dispersion parameter gets its own model)
+- predictor variable → *linear predictor* still governed by a linear model (for convenience)
+
 # Methods
 	
 ## Estimation
 
-- the hard part is that we need to compute an integral
+- we need to compute an integral
+- in *linear* mixed models the integral goes away (replaced by fancy linear algebra)
 - deterministic
     - various approximate integrals [@breslow_whither_2004]:  
 penalized quasi-likelihood, Laplace, Gauss-Hermite quadrature, … [@biswas2015];  
@@ -533,24 +557,26 @@ text(rep(1,5),seq(1.6,by=-0.18,length.out=5),
 
 # Inference
 
-## Wald tests
+## Wald tests/CIs
 
 - typical results of `summary()`
+- symmetric CIs
+- assumes log-likelihood surface is *quadratic*
 - exact for linear models: approximate for (G)LMMs
 - fast
 - approximation sometimes awful (*complete separation*)
-- “denominator degrees of freedom”
+- “denominator degrees of freedom” issues
     - e.g. Kenward-Roger correction [@stroup_rethinking_2014]
 
-## Likelihood ratio tests
+## Likelihood ratio tests/profile CIs
 
 - better than Wald, but still asymptotic
 - for hypothesis tests, fit & compare full and nested models (`anova()`, `drop1()`)
-- for CIs, *profile confidence intervals* (slow)
+- for CIs, compute *profile confidence intervals* (slow)
 
 ## Nonparametric bootstrap
 
-- Bootstrapping slow, but gold standard for frequentist models
+- Bootstrapping: slow, but gold standard for frequentist models
 - Need to respect structure when resampling
    - Residual bootstrapping for LMMs
    - Nested resampling where possible
@@ -571,7 +597,8 @@ text(rep(1,5),seq(1.6,by=-0.18,length.out=5),
 - If we have a good sample from the posterior distribution, 
 we get everything we want for free
 - Bayesian methods are more challenging to make work, and slow
-- `MCMCglmm`, `brms`, `rstanarm`
+- Gibbs sampling $\to$ *Hamiltonian Monte Carlo*
+- `MCMCglmm` (Gibbs), `brms` (HMC), `rstanarm` (HMC)
 
 # Challenges & open questions
 

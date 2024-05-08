@@ -31,6 +31,7 @@ library(dotwhisker)
 - remove terms until non-singular?
 - find minimum-AIC model?
 - find minimum non-singular AIC model?
+- backwards stepwise regression 
 
 @barr_random_2013; @bates_parsimonious_2015; @matuschek_balancing_2017
 
