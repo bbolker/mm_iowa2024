@@ -21,6 +21,24 @@ header-includes:
 - \newcommand{\bzero}{\boldsymbol 0}
 ---
 
+<style>
+.refs {
+   font-size: 14px;
+}
+h2 { 
+ color: #3399ff;		
+}
+h3 { 
+ color: #3399ff;		
+}
+.title-slide {
+   background-color: #55bbff;
+}
+
+<!-- https://stackoverflow.com/questions/50378349/force-column-break-in-rmarkdown-ioslides-columns-2-layout -->
+.forceBreak { -webkit-column-break-after: always; break-after: column; }
+</style>
+
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(echo = FALSE, dpi = 200, optipng = knitr::hook_optipng)
 options(bitmapType = "cairo")
@@ -71,6 +89,11 @@ $$
 * statistical complexity/sophistication
 * ANOVA → linear models → GLMs → mixed models → ???
 
+## Democratization
+
+* as long as we can educate people
+* 
+
 ## Domain-specific languages
 
 * DSLs make it easier to express a *limited* set of requirements
@@ -84,6 +107,7 @@ $$
     * further expansions ... (`brms` package etc.)
 * is it *too* compact? [@mcelreath_statistical_2015]
 	
+	
 # Present
 
 ## Ever-expanding possibilities
@@ -94,11 +118,15 @@ pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
 
 * [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions `r length(pkgs)` packages ...
 
-## Development and maintenance
+## Development and maintenance {.columns-2}
 
-* is open-source really a good idea?
-* https://xkcd.com/2347/
-* 
+* is open source really a good idea?
+   * academics want to publish Cool Stuff
+
+
+<p class="forceBreak"></p>
+
+![](
 
 ## Consolidation
 
