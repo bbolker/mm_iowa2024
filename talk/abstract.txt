@@ -1,0 +1,29 @@
+
+Progress and challenges in open-source multilevel modeling
+
+In parallel with the revolution in machine learning and AI, more
+traditional multilevel models are gradually becoming more flexible,
+powerful, and readily available in convenient open-source software. I
+will give a brief overview of the current landscape of mixed modeling
+tools, exciting new directions, and open challenges. I will focus on
+methods available in R but touch on methods in Julia and Python, as well
+as comparing to some commercial software. Other topics will include
+model selection, troubleshooting (convergence and singular-fit
+problems), and the use of latent variables to fit nonlinear patterns in
+data.
+
+
+TOPICS
+
+mixed models
+
+tech transfer
+
+links with ML
+
+scaling to big data?
+
+factor-analytic models
+
+
+Previous talks: see ~/projects/glmm/Abatch2.R (Arabidopsis comp), montreal-glmm.tex

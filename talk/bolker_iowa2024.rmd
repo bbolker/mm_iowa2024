@@ -1,0 +1,170 @@
+---
+title: "Progress and challenges in open-source multilevel modeling"
+author: Ben Bolker
+date: 14 May 2024
+bibliography: ../glmm.bib
+csl: ../nature.csl
+output:
+  ioslides_presentation
+header-includes:
+- \usepackage{amsmath}
+- \usepackage{amssymbol}
+- \newcommand{\y}{\boldsymbol y}
+- \newcommand{\X}{\boldsymbol X}
+- \newcommand{\Z}{\boldsymbol Z}
+- \newcommand{\bbeta}{\boldsymbol \beta}
+- \newcommand{\bb}{\boldsymbol b}
+- \newcommand{\bu}{\boldsymbol u}
+- \newcommand{\bLambda}{\boldsymbol \Lambda}
+- \newcommand{\bEta}{\boldsymbol \eta}
+- \newcommand{\btheta}{\boldsymbol \theta}
+- \newcommand{\bzero}{\boldsymbol 0}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, dpi = 200, optipng = knitr::hook_optipng)
+options(bitmapType = "cairo")
+```
+
+# Definitions and scope
+
+## GLMMs: the biggest picture
+
+* what do I mean?
+* linear fixed effects (possibly with a link function)
+* linear random effects/*latent variables* (ditto)
+* known clusters with independent sets of latent variables
+* multivariate Normal Gaussian distribution of latent variables
+
+## in other words
+
+$$
+\begin{split}
+\underbrace{Y_i}_{\text{response}} & \sim \overbrace{\text{Distr}}^{\substack{\text{conditional} \\ \text{distribution}}}(\underbrace{g^{-1}(\eta_i)}_{\substack{\text{inverse} \\ \text{link} \\ \text{function}}},\underbrace{\phi}_{\substack{\text{scale} \\ \text{parameter}}}) \\
+\underbrace{\boldsymbol \eta}_{\substack{\text{linear} \\ \text{predictor}}} & 
+ = 
+\underbrace{\boldsymbol X \boldsymbol \beta}_{\substack{\text{fixed} \\ \text{effects}}} + 
+\underbrace{\boldsymbol Z \boldsymbol b}_{\substack{\text{random} \\ \text{effects}}}
+\\
+\underbrace{\boldsymbol b}_{\substack{\text{conditional} \\ \text{modes}}}  & 
+\sim \text{MVN}(\boldsymbol 0, \underbrace{\Sigma(\boldsymbol \theta)}_{\substack{\text{covariance} \\ \text{matrix}}})
+\end{split}
+$$
+
+
+(possibly allow **zero-inflation**/hurdle component, **dispersion** (scale) model (e.g. $\phi = \X_d \beta_d$)
+
+# Past
+
+## Commoditization
+
+* "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" [Wikipedia](https://en.wikipedia.org/wiki/Commoditization)
+* Similarly, 
+* operating system > linear algebra packages (BLAS, LAPACK) > regression tools > generalized linear models ...
+* Advantages to building on top of old, well-tested frameworks
+
+## What is a "routine" model/analysis?
+
+* computation time/cost
+* availability of reliable software
+* data size
+* statistical complexity/sophistication
+* ANOVA → linear models → GLMs → mixed models → ???
+
+## Domain-specific languages
+
+* DSLs make it easier to express a *limited* set of requirements
+* (what is a "language"?)
+* R!
+* *Wilkinson-Rogers-Bates* formulas [@WilkinsonRogers1973]
+    * initial target: designed experiments
+	* `GENOTYPE*POL(SITE, 1,SITEMEAN)*POLND(DENSITY)`
+	* GENSTAT, expanded in S/R [@chambersStatistical1992a]
+	* expanded further by Pinheiro and Batesto include random effects [@pinheiro_mixed-effects_2000]
+    * further expansions ... (`brms` package etc.)
+* is it *too* compact? [@mcelreath_statistical_2015]
+	
+# Present
+
+## Ever-expanding possibilities
+
+```{r echo=FALSE}
+pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
+```
+
+* [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions `r length(pkgs)` packages ...
+
+## Development and maintenance
+
+* is open-source really a good idea?
+* https://xkcd.com/2347/
+* 
+
+## Consolidation
+
+
+* `tidymodels` example
+* `broom.mixed`, `performance`, `DHARMa`, `insight`, `marginaleffects`
+
+# Future
+
+## Machine learning/AI
+
+![]()
+
+from [sandserifcomics](https://www.instagram.com/sandserifcomics/)
+
+## ML or 'statistical' learning
+
+ML/SL:
+
+* emphasis on algorithms and scalability
+* prediction over inference [CITE BREIMAN]
+* 
+* automatic differentiation
+
+
+
+## Prediction 'vs' inference
+
+* any 'parameter' of a model is an expectation of a change in the response
+   * partial dependence (*marginal effects*), conditional dependence: 
+* users are almost always interested in *counterfactuals*
+* ... and estimates of uncertainty (or they should be)
+* uncertainty in a counterfactual effect == inference ???
+* connections to **causal inference**
+
+## Smooths everywhere
+
+* 
+
+## Scalability [@heilingEfficient2024; @heilingglmmPen2024; @gaoEfficient2017; @gaoEstimation2020a; @ghoshScalable2022; @ghoshBackfitting2022; @ghandwaniScalable2023]
+
+* dimensions of a mixed model
+   * number of observations ($10^2$ - $10^8$)
+   * number of latent variables ($10$ - $10^4$)
+   * number of clusters ($10$ - $10^4$)
+   * number of top-level parameters ($\beta$, $\theta$): $10$ - $1000$
+* MLE scaling typically ${\cal O}(N^{3/2})$; method-of-moments ${\cal O}(N)$  
+(stochastic gradient descent???)
+
+## Sparsity
+
+* computational trick or statement about the world?
+* combining mixed models with sparsity-inducing penalization (e.g. `glmmLasso`)
+* statement about an **effect size spectrum**
+   * ridge penalty ($\sum \beta_i^2$) == Gaussian prior on effects
+   * lasso penalty ($\sum |\beta_i|$) == Laplacian prior on effects
+* or, what fits best??
+
+## Sliding toward (empirical) Bayes
+
+* regularization/priors
+   * Bayes: justified by *belief*
+   * frequentism: justified by *decreased* bias (e.g. Firth logistic regression), decreased error (ridge regression, [Stein's paradox](https://en.wikipedia.org/wiki/Stein%27s_example))
+* PK/PD models
+
+## Why aren't we all Bayesian?
+
+## references {.refs}
+

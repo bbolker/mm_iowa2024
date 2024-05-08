@@ -2,6 +2,8 @@
 
 * email super-beginnery person
 
+https://docs.google.com/spreadsheets/d/1AAIebjNsnJj_uKALHbXNfn3_YsT6sHXtCU0q7OIPuc4/edit#gid=0
+
 ### glitches/troubleshooting
 
 makefile to link pix, glmm.bib
@@ -80,5 +82,3 @@ https://www.regcytes.extension.iastate.edu/appliedstatistics/
 	* importance sampling
 
 * easier multi-group membership models?
-
- 
