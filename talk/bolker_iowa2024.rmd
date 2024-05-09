@@ -44,6 +44,11 @@ knitr::opts_chunk$set(echo = FALSE, dpi = 200, optipng = knitr::hook_optipng)
 options(bitmapType = "cairo")
 ```
 
+```{r pkgs, message = FALSE}
+library(knitr)
+library(ggplot2); theme_set(theme_bw(base_size=16))
+```
+
 # Definitions and scope
 
 ## GLMMs: the biggest picture
@@ -84,10 +89,10 @@ $$
 
 ## Commoditization
 
-* "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" [Wikipedia](https://en.wikipedia.org/wiki/Commoditization)
-* Similarly, 
+* "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" ([Wikipedia](https://en.wikipedia.org/wiki/Commoditization))
+* basic components become part of a **stack**/utilities for higher-level features
 * operating system > linear algebra packages (BLAS, LAPACK) > regression tools > generalized linear models ...
-* Advantages to building on top of old, well-tested frameworks
+* build on top of old, well-tested frameworks
 
 ## Democratization
 
@@ -100,15 +105,15 @@ $$
 ## Domain-specific languages
 
 * DSLs can express a *limited* set of requirements
-* (what is a "language"?)
 * R!
 * *Wilkinson-Rogers-Bates* formulas [@WilkinsonRogers1973]
     * initial target: designed experiments
 	* `GENOTYPE*POL(SITE, 1,SITEMEAN)*POLND(DENSITY)`
 	* GENSTAT, expanded in S/R [@chambersStatistical1992a]
-	* expanded further by Pinheiro and Batesto include random effects [@pinheiro_mixed-effects_2000]
+	* expanded further to include random effects [@pinheiro_mixed-effects_2000]
     * further expansions ... (`brms` package etc.)
-* is it *too* compact? [@mcelreath_statistical_2015]? do users really know what `y ~ x1*x2 + (x1*x2|g)` means?
+* **too** compact [@mcelreath_statistical_2015]?  
+who really knows what `y ~ x1*x2 + (x1*x2|g)` means?
 	
 # Present
 
@@ -118,28 +123,69 @@ $$
 pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
 ```
 
-* [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions `r length(pkgs)` packages ...
+* [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions `r length(pkgs[[1]])` packages ...
 
-![](nbr_graph.png)
+```{r nbr_graph, out.height=400, out.width = 400, fig.align = "center"}
+knitr::include_graphics("nbr_graph.png")
+```
 
-## Development and maintenance {.columns-2}
+## Development and maintenance
 
-* open source:
-   * powerful
-   * equitable
-   * reproducible
-   * transparent
-   * cutting-edge
-* **BUT**
-   * academics are paid to publish Cool Stuff
-   * researchers are paid to Get Stuff Done
-   * mixed models are a niche market
+Open source software is:
 
-<p class="forceBreak"></p>
+* powerful
+* equitable
+* reproducible
+* transparent
+* cutting-edge
+* cheap!
 
-![](dependency_2x.png) 
+## Development and maintenance
+
+<!-- https://bookdown.org/yihui/rmarkdown-cookbook/multi-column.html -->
+
+:::: {style="display: flex;"}
+
+::: {}
+
+**BUT**:
+
+* academics are paid to publish Cool Stuff
+* researchers are paid to Get Stuff Done
+* computational statisticians are rare
+* mixed models are a niche market
+
+:::
+
+::: {}
+
+```{r dep, out.width=300, out.height=300}
+knitr::include_graphics("dependency_2x.png")
+```
+
+:::
+
+::::
 
 ## Development models
+
+:::: {style="display: flex;"}
+
+Something here 
+
+::: {}
+
+:::
+
+::: {}
+
+```{r devel, out.width=300, out.height=300}
+include_graphics("cathedral_bazaar.png")
+```
+
+:::
+
+::::
 
 ## Consolidation
 
@@ -152,7 +198,9 @@ pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
 
 ## Machine learning/AI
 
-![]()
+```{r ML}
+include_graphics("ml_cartoon.png")
+```
 
 from [sandserifcomics](https://www.instagram.com/sandserifcomics/)
 
@@ -164,9 +212,12 @@ ML/SL:
 * prediction over inference [@breimanStatistical2001]
 * automatic differentiation
 
+## autodiff everywhere
 
+* magic algorithm
+* CppAD, TMB, Stan, PyTorch, Tensorflow (`greta`), NIMBLE, ...
 
-## Prediction 'vs' inference
+## prediction 'vs' inference
 
 * any 'parameter' of a model is an expectation of a change in the response
    * partial dependence (*marginal effects*), conditional dependence: 
@@ -222,9 +273,17 @@ ML/SL:
 
 ## Why aren't we all Bayesian?
 
-* concern about subjectivity
+* concern about subjectivity, ease of use [@efronWhy1986]
+* Bayes is still slower
 
-[EFRON 1986]
+```{r timings, fig.width=3, fig.height = 2}
+theme_set(theme_bw(base_size=12))
+timings <- readRDS("timecomp.rds") |> sort() |> rev()
+dd <- data.frame(package = factor(names(timings), levels = names(timings)),
+   time = timings)
+ggplot(dd, aes(x = time, y = package)) + geom_point(size=4) +
+  scale_x_log10() + labs(x="time (sec)", y = "")
+```
 
 ## references {.refs}
 
