@@ -3,7 +3,7 @@ title: "Progress and challenges in open-source multilevel modeling"
 author: Ben Bolker
 date: 14 May 2024
 bibliography: ../glmm.bib
-csl: ../nature.csl
+csl: ../reflist2.csl
 output:
   ioslides_presentation
 header-includes:
@@ -144,7 +144,7 @@ Open source software is:
 
 <!-- https://bookdown.org/yihui/rmarkdown-cookbook/multi-column.html -->
 
-:::: {style="display: flex;"}
+:::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 50px;"}
 
 ::: {}
 
@@ -153,7 +153,8 @@ Open source software is:
 * academics are paid to publish Cool Stuff
 * researchers are paid to Get Stuff Done
 * computational statisticians are rare
-* mixed models are a niche market
+* mixed models are a niche market  
+(`lme4` is approximately 92d (out of 21K) on CRAN)
 
 :::
 
@@ -285,5 +286,5 @@ ggplot(dd, aes(x = time, y = package)) + geom_point(size=4) +
   scale_x_log10() + labs(x="time (sec)", y = "")
 ```
 
-## references {.refs}
+## references {.refs .columns-2 .allowframebreaks}
 

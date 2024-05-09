@@ -1,29 +1,23 @@
+image credits
+
 https://www.instagram.com/sandserifcomics/
+xkcd (2347?)
+https://www.reddit.com/r/loweffortai/comments/1catnmg/cathedral_and_the_bazaar/
+https://openclipart.org/detail/221942/Floating-Bubble
 
-scaling papers
-
-heilingEfficient2024
-heilingglmmPen2024
-gaoEfficient2017
-gaoEstimation2020a
-ghoshScalable2022
-ghoshBackfitting2022
-ghandwaniScalable2023
+https://www.pexels.com/photo/close-up-photo-of-floating-bubbles-13812417/
+https://www.pexels.com/photo/close-up-photo-of-round-bubbles-floating-7839500/
 
 reflist2.csl ??
 
-
-https://www.reddit.com/r/loweffortai/comments/1catnmg/cathedral_and_the_bazaar/
-
-xkcd ref
-
-play with network graph
+automate copy to docs/
 
 compare dplyr, lme4 downloads
 https://www.datasciencemeta.com/rpackages
+(automate?)
 
+model selection?
 horseshoe priors?
 comment on sparsity (Bayes vs MLE)?
 concentration of measure etc.?
-time to run a model?
 "software is a gas" (Nathan Myhrvold)
