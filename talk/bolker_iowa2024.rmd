@@ -70,16 +70,9 @@ $$
 $$
 
 
-(possibly allow **zero-inflation**/hurdle component, **dispersion** (scale) model (e.g. $\phi = \X_d \beta_d$)
+... possibly allow **zero-inflation**/hurdle component, **dispersion** (scale) model (e.g. $\phi = \exp(\X_d \beta_d (? + \Z_d \bb_d ?))$)
 
 # Past
-
-## Commoditization
-
-* "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" [Wikipedia](https://en.wikipedia.org/wiki/Commoditization)
-* Similarly, 
-* operating system > linear algebra packages (BLAS, LAPACK) > regression tools > generalized linear models ...
-* Advantages to building on top of old, well-tested frameworks
 
 ## What is a "routine" model/analysis?
 
@@ -89,14 +82,24 @@ $$
 * statistical complexity/sophistication
 * ANOVA → linear models → GLMs → mixed models → ???
 
+## Commoditization
+
+* "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" [Wikipedia](https://en.wikipedia.org/wiki/Commoditization)
+* Similarly, 
+* operating system > linear algebra packages (BLAS, LAPACK) > regression tools > generalized linear models ...
+* Advantages to building on top of old, well-tested frameworks
+
 ## Democratization
 
-* as long as we can educate people
-* 
+* as long as people are educated *enough*
+* ¿can we afford enough statistical consultants?
+* Efron: "recommending that scientists use [X] is like giving the neighborhood kids the key to your F-16" [@gelmanObjections2008]  
+(*X = "Bayes' Theorem" here but could be "mixed models"?*)
+* want to make easy things easy and hard things possible
 
 ## Domain-specific languages
 
-* DSLs make it easier to express a *limited* set of requirements
+* DSLs can express a *limited* set of requirements
 * (what is a "language"?)
 * R!
 * *Wilkinson-Rogers-Bates* formulas [@WilkinsonRogers1973]
@@ -105,8 +108,7 @@ $$
 	* GENSTAT, expanded in S/R [@chambersStatistical1992a]
 	* expanded further by Pinheiro and Batesto include random effects [@pinheiro_mixed-effects_2000]
     * further expansions ... (`brms` package etc.)
-* is it *too* compact? [@mcelreath_statistical_2015]
-	
+* is it *too* compact? [@mcelreath_statistical_2015]? do users really know what `y ~ x1*x2 + (x1*x2|g)` means?
 	
 # Present
 
@@ -118,21 +120,33 @@ pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
 
 * [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions `r length(pkgs)` packages ...
 
+![](nbr_graph.png)
+
 ## Development and maintenance {.columns-2}
 
-* is open source really a good idea?
-   * academics want to publish Cool Stuff
-
+* open source:
+   * powerful
+   * equitable
+   * reproducible
+   * transparent
+   * cutting-edge
+* **BUT**
+   * academics are paid to publish Cool Stuff
+   * researchers are paid to Get Stuff Done
+   * mixed models are a niche market
 
 <p class="forceBreak"></p>
 
-![](
+![](dependency_2x.png) 
+
+## Development models
 
 ## Consolidation
 
-
 * `tidymodels` example
-* `broom.mixed`, `performance`, `DHARMa`, `insight`, `marginaleffects`
+* `easystats`
+* `broom.mixed`, `DHARMa`, `marginaleffects`
+
 
 # Future
 
@@ -176,6 +190,9 @@ ML/SL:
 * MLE scaling typically ${\cal O}(N^{3/2})$; method-of-moments ${\cal O}(N)$  
 (stochastic gradient descent???)
 
+## Algorithms
+
+
 ## Sparsity
 
 * computational trick or statement about the world?
@@ -193,6 +210,8 @@ ML/SL:
 * PK/PD models
 
 ## Why aren't we all Bayesian?
+
+[EFRON 1986]
 
 ## references {.refs}
 
