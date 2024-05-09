@@ -1,3 +1,12 @@
+more on breadth (intro section): phylogenetic/pedigree, multimembership, spatial and temporal, ...
+
+structures (smooths/structures)
+
+more on high-dimensional modeling, factor-analytic/reduced-rank approaches
+(separable correlation matrices)
+
+reflist2 with numerical refs?
+
 image credits
 
 https://www.instagram.com/sandserifcomics/
