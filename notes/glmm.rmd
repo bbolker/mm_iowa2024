@@ -616,12 +616,19 @@ we get everything we want for free
 
 ## Challenges
 
-- GLMMs with few clusters: need to go beyond Laplace approximation
+- GLMMs with few clusters: need to go beyond Laplace approximation (importance sampling, Gausss-Hermite)
 - LMMs with few clusters: need finite-size corrections (KR/PB/MCMC)
-- Choosing the complexity of RE components (**singular fits**): [@barr_random_2013, @bates_parsimonious_2015]
+- Choosing the complexity of RE components (**singular fits**): [@barr_random_2013, @bates_parsimonious_2015]. [buildmer package](https://gitlab.com/cvoeten/buildmer) ?
 - Big data: speed!
 - Model diagnosis
 - Complex correlation structures: spatial, temporal, phylogenetic, ... [@ives_statistics_2006; @Rue+2009; @rousset_testing_2014]
+
+## Landscape
+
+* frequentist: `nlme`, `lme4`, `glmmTMB`, `MixedModels.jl` (Julia)
+* Bayesian: `MCMCglmm`, `rstanarm`, `brms`, `bamlss`, `INLA`
+* build-your-own: `greta`, `RTMB`, `NIMBLE`, `Stan` (`rethinking` package)
+* spatial: `glmmTMB`, `sdmTMB`, `spaMM`
 
 ## resources
 

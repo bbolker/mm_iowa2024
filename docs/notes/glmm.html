@@ -742,16 +742,30 @@ everything we want for free</li>
 <div id="challenges" class="section level2">
 <h2>Challenges</h2>
 <ul>
-<li>GLMMs with few clusters: need to go beyond Laplace
-approximation</li>
+<li>GLMMs with few clusters: need to go beyond Laplace approximation
+(importance sampling, Gausss-Hermite)</li>
 <li>LMMs with few clusters: need finite-size corrections
 (KR/PB/MCMC)</li>
 <li>Choosing the complexity of RE components (<strong>singular
-fits</strong>):<span class="citation"><sup><a href="#ref-bates_parsimonious_2015">13</a></sup></span></li>
+fits</strong>):<span class="citation"><sup><a href="#ref-bates_parsimonious_2015">13</a></sup></span>. <a href="https://gitlab.com/cvoeten/buildmer">buildmer package</a> ?</li>
 <li>Big data: speed!</li>
 <li>Model diagnosis</li>
 <li>Complex correlation structures: spatial, temporal, phylogenetic,
 …<span class="citation"><sup><a href="#ref-ives_statistics_2006">14</a>–<a href="#ref-rousset_testing_2014">16</a></sup></span></li>
+</ul>
+</div>
+<div id="landscape" class="section level2">
+<h2>Landscape</h2>
+<ul>
+<li>frequentist: <code>nlme</code>, <code>lme4</code>,
+<code>glmmTMB</code>, <code>MixedModels.jl</code> (Julia)</li>
+<li>Bayesian: <code>MCMCglmm</code>, <code>rstanarm</code>,
+<code>brms</code>, <code>bamlss</code>, <code>INLA</code></li>
+<li>build-your-own: <code>greta</code>, <code>RTMB</code>,
+<code>NIMBLE</code>, <code>Stan</code> (<code>rethinking</code>
+package)</li>
+<li>spatial: <code>glmmTMB</code>, <code>sdmTMB</code>,
+<code>spaMM</code></li>
 </ul>
 </div>
 <div id="resources" class="section level2">

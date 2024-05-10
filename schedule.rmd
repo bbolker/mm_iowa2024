@@ -5,18 +5,22 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 
 **approximate and subject to change!**
 
-* 9-10 - [intro comments](notes/intro.html); [overview](notes/glmm.html); start [live coding](notes/mixed_lab.html)
+* [intro comments](notes/intro.html)
+* [overview](notes/glmm.html)
 * 10-10:15 **break**
-* 10:15-10:45 [live coding examples](notes/mixed_lab.html)
-* 10:45-11:15 [simulating mixed models](notes/simulation.html)
-* 11:15-noon [diagnostics and troubleshooting](notes/troubleshooting.html)
+* [workflow example](notes/mixed_lab.html)
+    * [basic workflow exercise](exercises/basic.html)
+* [simulating mixed models](notes/simulation.html)
+    * [simulation exercise](exercises/simulation.html)
+* [diagnostics and troubleshooting](notes/troubleshooting.html)
 * noon - 1 **lunch**
-* [further model simplification examples](notes/glmm_lab.html)
+* [further model simplification](notes/glmm_lab.html)
 * [modular fitting](notes/modular.html)
+    * [modular exercise](exercises/modular.html)
 * [constructing $X$, $Z$, and $\Sigma$](notes/constructing.html)
-* [correlation structures](notes/correlations.html)
 * 3-3:15 **break**
-* 4:15-5 open session/Q&A?
+* [correlation structures](notes/correlations.html)
+* open session/Q&A
 
 
 
