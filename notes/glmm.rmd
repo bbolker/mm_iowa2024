@@ -556,6 +556,17 @@ text(rep(1,5),seq(1.6,by=-0.18,length.out=5),
      mnames,col=rev(cvec),cex=0.7,adj=0)
 ```
 
+## What is the maximal model?
+
+- Which effects vary *within* which groups?
+- If effects don't vary within groups, then we *can't* estimate among-group variation in the effect
+     - convenient
+     - maybe less powerful
+- e.g. female rats exposed to different doses of radiation, multiple pups per mother, multiple measurements per pup (labeled by time). Maximal model ... ?
+- Maximal model is often impractical/unfeasible
+   - *Culcita* (coral-reef) example: randomized-block design, so each treatment (none/crabs/shrimp/both) is repeated in every block; thus `(treat|block)` is maximal
+   - CBPP data: each herd is measured in every period, so in principle we could use `(period|herd)`, not just `(1|herd)`
+
 # Inference
 
 ## Wald tests/CIs
