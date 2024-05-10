@@ -1,5 +1,11 @@
 ## Iowa
 
+temporal corr example
+
+https://github.com/seananderson/glmm-course/blob/master/08-temporal-autocorrelation.Rmd
+
+https://bbolker.github.io/mixedmodels-misc/notes/corr_braindump.html
+
 * email super-beginnery person
 
 https://docs.google.com/spreadsheets/d/1AAIebjNsnJj_uKALHbXNfn3_YsT6sHXtCU0q7OIPuc4/edit#gid=0
@@ -43,7 +49,8 @@ mvbutils?
    * modular code in `lme4` (`?modular`), `glmmTMB` (`?fitTMB`)
 * advanced models
    * covariance structures
-   
+
+
 * inference: Wald (ddf issues), profiles, LRT, bootstrapping (P/NP)
 
 https://www.regcytes.extension.iastate.edu/appliedstatistics/

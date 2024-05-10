@@ -29,6 +29,28 @@ opt <- optimizeLmer(devfun)
 fit <- mkMerMod(environment(devfun), opt, lmod$reTrms, fr = lmod$fr)
 ```
 
+## example: AR1 correlation structure
+
+```{r}
+ar1cor <- function(rho, p) {
+    R <- matrix(0, p, p)
+    R[1,] = rho^(0:(p-1))        ## formula for 1st row
+    c <- sqrt(1 - rho^2)         ## scaling factor: c^2 + rho^2 = 1
+    R2 <- c * R[1,]              ## formula for 2nd row
+    for (j in  2:p) {            ## shift elements in 2nd row for remaining rows
+        R[j, j:p] = R2[1:(p-j+1)] 
+    }
+    return(R)
+}
+ar1cor(0.8, 5)
+devfun2 <- function(sigma, rho) {
+    cholfac <- sigma*t(ar1cor(rho, p))
+    theta <- cholfac[lower.tri(cholfac, diag = TRUE)]
+    devfun(theta)
+}
+## nloptwrap
+```
+
 ## `glmmTMB` bare-bones modular example
 
 ```{r glmmTMB-1}

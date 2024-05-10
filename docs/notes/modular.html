@@ -391,6 +391,32 @@ names(lmod)</code></pre>
 opt &lt;- optimizeLmer(devfun)
 fit &lt;- mkMerMod(environment(devfun), opt, lmod$reTrms, fr = lmod$fr)</code></pre>
 </div>
+<div id="example-ar1-correlation-structure" class="section level2">
+<h2>example: AR1 correlation structure</h2>
+<pre class="r"><code>ar1cor &lt;- function(rho, p) {
+    R &lt;- matrix(0, p, p)
+    R[1,] = rho^(0:(p-1))        ## formula for 1st row
+    c &lt;- sqrt(1 - rho^2)         ## scaling factor: c^2 + rho^2 = 1
+    R2 &lt;- c * R[1,]              ## formula for 2nd row
+    for (j in  2:p) {            ## shift elements in 2nd row for remaining rows
+        R[j, j:p] = R2[1:(p-j+1)] 
+    }
+    return(R)
+}
+ar1cor(0.8, 5)</code></pre>
+<pre><code>##      [,1] [,2] [,3]  [,4]   [,5]
+## [1,]    1  0.8 0.64 0.512 0.4096
+## [2,]    0  0.6 0.48 0.384 0.3072
+## [3,]    0  0.0 0.60 0.480 0.3840
+## [4,]    0  0.0 0.00 0.600 0.4800
+## [5,]    0  0.0 0.00 0.000 0.6000</code></pre>
+<pre class="r"><code>devfun2 &lt;- function(sigma, rho) {
+    cholfac &lt;- sigma*t(ar1cor(rho, p))
+    theta &lt;- cholfac[lower.tri(cholfac, diag = TRUE)]
+    devfun(theta)
+}
+## nloptwrap</code></pre>
+</div>
 <div id="glmmtmb-bare-bones-modular-example" class="section level2">
 <h2><code>glmmTMB</code> bare-bones modular example</h2>
 <pre class="r"><code>library(glmmTMB)
