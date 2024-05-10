@@ -1,5 +1,5 @@
 ---
-title: "constructing the components of a mixed model"
+title: "correlation structures"
 header-includes:
 - \usepackage{amsmath}
 - \usepackage{amssymbol}
@@ -15,8 +15,49 @@ header-includes:
 - \newcommand{\bzero}{\boldsymbol 0}
 ---
 
-
 \newcommand{\bm}[1]{#1}
 
+## Review of RE covariance matrices ($\Sigma$)
 
+* $\Sigma$ is doubly block-diagonal
+   * one block for every random-effect *term* (maybe only 1)
+   * one sub-block for every *cluster* within a term, maybe only 1 (R-side effects)
+   
+## Correlation structures in `lme`
+
+- separate for R-side (`corStruct`: `corAR1`, `corCompSymm`, etc.), G-side `pdStruct`
+
+```{r}
+library(nlme)
+data(Nile)
+nile <- data.frame(date = 1871:1970, flow = c(Nile))
+fit1 <- gls(flow ~ date, correlation = corAR1(), data = nile)
+```
+
+## Correlation structures in `lme4`
+
+* not much! strong assumption of unstructured covariance matrix
+* `||` operator separates components into separate terms
+* e.g. `(1 + x + y || f)` $\to$ `(1|f) + (0 + x | f) + (0 + y | f)`
+* purely *semantic*; factor variables aren't handled well
+* `afex::mixed()` adds a layer to produce a diagonal covariance matrix even for factors (by splitting/creating dummies)
+
+## Correlation structures in `glmmTMB`
+
+```{r}
+library(glmmTMB)
+nile$dummy <- factor(1)
+fit2 <- glmmTMB(flow ~ date + ar1(factor(date) + 0 | dummy),
+                data = nile,
+                dispformula = ~ 0,
+                start = list(beta = c(6216, -2.758)))
+```
+
+## Reduced-rank (factor-analytic)
+
+## Correlation structure via smooths
+
+* `mgcv` smooths can (as of recently) be used 
+
+## sdmTMB
 ## refs {.refs}

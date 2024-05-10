@@ -110,7 +110,7 @@ $$
     * initial target: designed experiments
 	* `GENOTYPE*POL(SITE, 1,SITEMEAN)*POLND(DENSITY)`
 	* GENSTAT, expanded in S/R [@chambersStatistical1992a]
-	* expanded further to include random effects [@pinheiro_mixed-effects_2000]
+	* expanded further to include random effects [@pinheiro_mixed-effects_2000; @tanakaSymbolic2019]
     * further expansions ... (`brms` package etc.)
 * **too** compact [@mcelreath_statistical_2015]?  
 who really knows what `y ~ x1*x2 + (x1*x2|g)` means?

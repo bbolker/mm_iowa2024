@@ -1,0 +1,14 @@
+---
+title: "LMM/GLMM exercise"
+---
+
+* Pick a data set from the list: if in doubt, choose `fire_diversity`. 
+* Load the data set. 
+* **optionally** use `ggplot2`, or the tool of your choice, to visualize the data, paying particular attention to grouping structure.
+* **optionally** identify the *maximal model* for the data set
+* fit a model of your choice, using either `lme4` (or `lmerTest`) or `glmmTMB`
+   * if using the `fire_diversity` data set, consider fixed effects `NPP_log_sc` and `Feat_log_sc`, and grouping variable `biome`
+* check diagnostics using `DHARMa` or `performance::check_model()`
+* examine the output of `summary()` and draw conclusions
+* draw a coefficient plot using `dotwhisker` or another tool of your choice; draw conclusions
+* do some form of inference (e.g., a hypothesis test)

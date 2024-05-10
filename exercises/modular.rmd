@@ -1,0 +1,8 @@
+---
+title: "Modular fitting exercise"
+---
+
+* Using either `lme4` or `glmmTMB`, use the modular fitting framework to do a model fit step by step. Use `str()`/`names()` (possibly `slotNames()`, or even `DataExplorer::plot_str()`?) to explore the structure of the object produced at each step.
+   * for `lme4`, see the steps at `?modular`
+   * for `glmmTMB`, see the steps at `?fitTMB`
+* if you have time, modify something about the structure of the model between steps, or use a wrapper function, and see how it goes.

@@ -1,0 +1,8 @@
+---
+title: "Simulation exercise"
+---
+
+* Simulate a data set with a structure of your choosing that would be appropriate for modeling with a (G)LMM, using either `lme4` (see the first paragraph of *Details* in `?simulate.merMod`) or `simulate_new()` from `glmmTMB`. (If in doubt, you can use something along the lines of the `sleepstudy` data set from the `lme4` package, which measures the reaction time of individuals who are progressively deprived of sleep for multiple days.)
+   * If you're not feeling ambitious, stick to intercept-only random effects (for which the `theta` parameters are scaled SDs for `lmer` or log SDs for `glmmTMB`
+* Fit a corresponding model to your simulated data set; make sure the parameters you retrieved are reasonably close to the ones you intended to simulate.
+* If you have time, do multiple rounds of simulation and fitting to check either (1) the distribution of estimated parameters or (2) power to reject particular null hypotheses.

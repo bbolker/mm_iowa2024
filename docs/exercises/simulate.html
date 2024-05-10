@@ -11,7 +11,7 @@
 
 
 
-<title>correlation structures</title>
+<title>Simulation exercise</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -348,70 +348,32 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">correlation structures</h1>
+<h1 class="title toc-ignore">Simulation exercise</h1>
 
 </div>
 
 
-<div id="review-of-re-covariance-matrices-sigma" class="section level2">
-<h2>Review of RE covariance matrices (<span class="math inline">\(\Sigma\)</span>)</h2>
 <ul>
-<li><span class="math inline">\(\Sigma\)</span> is doubly block-diagonal
+<li>Simulate a data set with a structure of your choosing that would be
+appropriate for modeling with a (G)LMM, using either <code>lme4</code>
+(see the first paragraph of <em>Details</em> in
+<code>?simulate.merMod</code>) or <code>simulate_new()</code> from
+<code>glmmTMB</code>. (If in doubt, you can use something along the
+lines of the <code>sleepstudy</code> data set from the <code>lme4</code>
+package, which measures the reaction time of individuals who are
+progressively deprived of sleep for multiple days.)
 <ul>
-<li>one block for every random-effect <em>term</em> (maybe only 1)</li>
-<li>one sub-block for every <em>cluster</em> within a term, maybe only 1
-(R-side effects)</li>
+<li>If you’re not feeling ambitious, stick to intercept-only random
+effects (for which the <code>theta</code> parameters are scaled SDs for
+<code>lmer</code> or log SDs for <code>glmmTMB</code></li>
 </ul></li>
+<li>Fit a corresponding model to your simulated data set; make sure the
+parameters you retrieved are reasonably close to the ones you intended
+to simulate.</li>
+<li>If you have time, do multiple rounds of simulation and fitting to
+check either (1) the distribution of estimated parameters or (2) power
+to reject particular null hypotheses.</li>
 </ul>
-</div>
-<div id="correlation-structures-in-lme" class="section level2">
-<h2>Correlation structures in <code>lme</code></h2>
-<ul>
-<li>separate for R-side (<code>corStruct</code>: <code>corAR1</code>,
-<code>corCompSymm</code>, etc.), G-side <code>pdStruct</code></li>
-</ul>
-<pre class="r"><code>library(nlme)
-data(Nile)
-nile &lt;- data.frame(date = 1871:1970, flow = c(Nile))
-fit1 &lt;- gls(flow ~ date, correlation = corAR1(), data = nile)</code></pre>
-</div>
-<div id="correlation-structures-in-lme4" class="section level2">
-<h2>Correlation structures in <code>lme4</code></h2>
-<ul>
-<li>not much! strong assumption of unstructured covariance matrix</li>
-<li><code>||</code> operator separates components into separate
-terms</li>
-<li>e.g. <code>(1 + x + y || f)</code> <span class="math inline">\(\to\)</span>
-<code>(1|f) + (0 + x | f) + (0 + y | f)</code></li>
-<li>purely <em>semantic</em>; factor variables aren’t handled well</li>
-<li><code>afex::mixed()</code> adds a layer to produce a diagonal
-covariance matrix even for factors (by splitting/creating dummies)</li>
-</ul>
-</div>
-<div id="correlation-structures-in-glmmtmb" class="section level2">
-<h2>Correlation structures in <code>glmmTMB</code></h2>
-<pre class="r"><code>library(glmmTMB)
-nile$dummy &lt;- factor(1)
-fit2 &lt;- glmmTMB(flow ~ date + ar1(factor(date) + 0 | dummy),
-                data = nile,
-                dispformula = ~ 0,
-                start = list(beta = c(6216, -2.758)))</code></pre>
-</div>
-<div id="reduced-rank-factor-analytic" class="section level2">
-<h2>Reduced-rank (factor-analytic)</h2>
-</div>
-<div id="correlation-structure-via-smooths" class="section level2">
-<h2>Correlation structure via smooths</h2>
-<ul>
-<li><code>mgcv</code> smooths can (as of recently) be used</li>
-</ul>
-</div>
-<div id="sdmtmb" class="section level2">
-<h2>sdmTMB</h2>
-</div>
-<div id="refs" class="section level2 refs">
-<h2 class="refs">refs</h2>
-</div>
 
 
 

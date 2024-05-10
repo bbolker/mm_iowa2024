@@ -20,7 +20,14 @@ docs/%.html: %.html
 notes = $(wildcard notes/*.rmd)
 notepages = $(notes:%.rmd=docs/%.html)
 
+exercises = $(wildcard exercises/*.rmd)
+exerpages = $(exercises:%.rmd=docs/%.html)
+
 slides = $(wildcard notes/*.rmd)
 slidepages = $(slides:%.rmd=docs/%.slides.html)
 
-pushnotes: $(notepages) docs/schedule.html docs/index.html docs/setup.html docs/datasets.html
+pushnotes: $(notepages)  $(exerpages) docs/schedule.html docs/index.html docs/setup.html docs/datasets.html docs/glmm_data.zip
+
+docs/glmm_data.zip:
+	zip docs/glmm_data.zip data/*
+
