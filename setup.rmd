@@ -12,7 +12,7 @@ Note that this list deliberately takes an [everything-but-the-kitchen-sink](http
 ```{r pkg1,eval=FALSE}
 ## modeling packages
 mod_pkgs <- c("bbmle", "blme", "brms", "gamm4", "glmmLasso", "glmmML", "GLMMadaptive",
-              "glmmTMB", "lme4", "MCMCglmm", "robustlmm", "rstanarm", "RTMB", "spaMM")
+              "glmmTMB", "lme4", "MCMCglmm", "robustlmm", "rstanarm", "RTMB", "spaMM", "buildmer")
 ## miscellaneous/data manipulation
 data_pkgs <- c("rbenchmark", "brglm", "devtools", "emdbook", "MEMSS",
                "plyr", "remotes", "reshape2", "SASmixed", "tidyverse")

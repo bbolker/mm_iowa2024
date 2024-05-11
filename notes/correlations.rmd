@@ -44,6 +44,7 @@ fit1 <- gls(flow ~ date, correlation = corAR1(), data = nile)
 
 ## Correlation structures in `glmmTMB`
 
+
 ```{r}
 library(glmmTMB)
 nile$dummy <- factor(1)
@@ -53,7 +54,7 @@ fit2 <- glmmTMB(flow ~ date + ar1(factor(date) + 0 | dummy),
                 start = list(beta = c(6216, -2.758)))
 ```
 
-## Reduced-rank (factor-analytic)
+## Reduced-rank (factor-analytic) smooths
 
 ## Correlation structure via smooths
 

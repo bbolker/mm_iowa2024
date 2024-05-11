@@ -1,6 +1,6 @@
 ---
 title: "Iowa workshop schedule"
-date: "`r format(Sys.time(),'%d %b %Y')`"
+date: 13 May 2024
 ---
 
 **approximate and subject to change!**
@@ -22,5 +22,8 @@ date: "`r format(Sys.time(),'%d %b %Y')`"
 * [correlation structures](notes/correlations.html)
 * open session/Q&A
 
+---
+
+Last revised `r format(Sys.time(),'%d %b %Y')`
 
 

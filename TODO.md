@@ -89,3 +89,4 @@ https://www.regcytes.extension.iastate.edu/appliedstatistics/
 	* importance sampling
 
 * easier multi-group membership models?
+

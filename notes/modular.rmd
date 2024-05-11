@@ -2,6 +2,20 @@
 title: "modular fitting"
 ---
 
+```{r knitr,include=FALSE}
+require("knitr")
+knitr::opts_knit$set(root.dir = here::here())
+knit_hooks$set(crop=hook_pdfcrop)
+```
+
+```{r pkgs, message = FALSE}
+library(lme4)
+library(glmmTMB)
+library(ggplot2); theme_set(theme_bw())
+library(parameters)
+library(mgcv)
+```
+
 ## Goals
 
 * allow more flexible constructions, work around package limitations
@@ -20,8 +34,7 @@ title: "modular fitting"
 
 ## `lme4` bare-bones modular example
 
-```{r}
-library(lme4)
+```{r mod1}
 lmod <- lFormula(Reaction ~ Days + (Days|Subject), sleepstudy)
 names(lmod)
 devfun <- do.call(mkLmerDevfun, lmod)
@@ -31,7 +44,7 @@ fit <- mkMerMod(environment(devfun), opt, lmod$reTrms, fr = lmod$fr)
 
 ## example: AR1 correlation structure
 
-```{r}
+```{r ar1cor}
 ar1cor <- function(rho, p) {
     R <- matrix(0, p, p)
     R[1,] = rho^(0:(p-1))        ## formula for 1st row
@@ -48,6 +61,28 @@ devfun2 <- function(sigma, rho) {
     theta <- cholfac[lower.tri(cholfac, diag = TRUE)]
     devfun(theta)
 }
+d <- (read.csv("data/Cod_daily_depth_data.csv")
+    |> na.omit()
+    |> transform(ctemp = Temperature_1m-mean(Temperature_1m),
+                 fdate = factor(as.Date(date)))
+)
+```
+
+```{r fit-ar1, cache = TRUE}
+m1 <- glmmTMB(log(depth_mean_day) ~ 1 + ctemp +  (1 + ctemp | fish) +
+            ar1(0 + fdate | fish),
+        data = d)
+m2 <- update(m1, dispformula = ~0)
+AIC(m1, m2)
+ggplot(d, aes(ctemp, -log(depth_mean_day))) + 
+  geom_point(alpha = 0.3) +
+  facet_wrap(~fish)
+m1 <- lmer(log(depth_mean_day) ~ 1 + ctemp +  (1 + ctemp | fish), data = d) # exercise
+## library(mgcv)
+m2 <- gam(log(depth_mean_day) ~ s(ctemp, factor(fish), bs = "fs"), data = d)
+   
+## performance::check_model(m1)
+## performance::check_model(m2)
 ## nloptwrap
 ```
 
