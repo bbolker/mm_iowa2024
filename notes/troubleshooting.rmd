@@ -9,12 +9,6 @@ require("knitr")
 knitr::opts_knit$set(root.dir = here::here())
 ```
 
-```{r pkgs, message=FALSE, warning = FALSE}
-library(tidyverse)
-library(broom.mixed)
-library(lme4)
-library(glmmTMB)
-```
 
 # overview
 
@@ -37,6 +31,16 @@ library(glmmTMB)
 * warning = potentially serious problem. Don't ignore unless you understand it, and if so, then eliminate the warning as far upstream as possible (e.g. by changing options/settings; `suppressWarnings()` if that's the only choice)
 * error = so serious that R/package author can't or won't give you an answer (may be possible to override/work around ...)
 
+## load packages
+
+```{r pkgs, message=FALSE, warning = FALSE}
+library(tidyverse)
+library(broom.mixed)
+library(lme4)
+library(glmmTMB)
+library(Matrix)
+```
+
 # convergence problems
 
 ## non-positive-definite Hessians
@@ -46,7 +50,8 @@ library(glmmTMB)
     * sometimes just the covariance parameters, sometimes fixed + covariance parameters
 	* (random-effects parameters are profiled out or estimated in an internal loop)
 * at the optimum we should have a gradient of zero and a **positive definite** Hessian
-* Hessian:
+
+##  Hessian
 
 \newcommand{\jjdiag}[1]{\frac{\partial^2 L}{\partial \beta_{#1}^2}}
 \newcommand{\jjoff}[2]{\frac{\partial^2 L}{\partial \beta_{#1} \partial \beta_{#2}}}
@@ -81,12 +86,14 @@ box()
 ## solutions
 
 * double-check the model definition and data
-* scale and center predictor variables
+    * one random effect per observation (when the conditional distribution has a scale parameter)
+	* all observations in a cluster have the same response value (e.g. [here](https://stackoverflow.com/a/53053309/190277))
+	* etc.
+* scale and center predictor variables (improves stability)
+* general advice in Bolker *et al.* 2013 [@bolker_strategies_2013] *may* be useful
 * extract Hessian and see *which* eigenvector(s) is/are associated with the minimal eigenvalue(s)
    * extracting Hessian often requires some digging, e.g. `model@optinfo$derivs` (`lme4`) or `model$sdr$cov.fixed` (`glmmTMB`))
-   
-**example?**
-
+  
 ## more examples
 
 * many GLMM parameters have a *bounded domain*
@@ -127,7 +134,8 @@ environment(m1$family$variance)$.Theta
 ## a specific (problematic!) case
 
 * extra check on top of optimizer-based convergence checks
-* 
+* many false positives
+
 ## diagnosing convergence warnings
 
 * `allFit`
@@ -238,17 +246,26 @@ logLik(m3)
 * drop terms, e.g. correlation between slopes and intercepts [@barr_random_2013]
 * (should probably center continuous covariates first)
 * Matuschek *et al* [@matuschek_balancing_2017] say you should be dropping terms anyway
+* drop correlations (e.g. `(f||g)` or `diag(f|g)`
+* reduced-rank models (`glmmTMB` does *factor analytic* models, e.g. `rr(f1*f2|g, d = 5)`; or `gllvm` package)
+* `buildmer` package (??)
 
-* drop correlations
-* reduced-rank models
+## model simplication [@uriartePreaching2009a]
+
+```{r uriarte}
+include_graphics("pix/uriarte.png")
+```
 
 ## regularization
 
-* `blme`
+* `blme`: assign priors, do maximum *a posteriori* estimation
+   * default for RE terms: SD $\sim$ Gamma(shape = 2.5, rate = 0) [@chung_nondegenerate_2013]
 * priors in `glmmTMB` (new)
+* priors in Bayesian pkgs (of course) `MCMCglmm`, `brms`, `rstanarm`
 
 ## complete separation (GLM(M)-specific)
 
-* add priors
+* Bernoulli data
+* Firth regression; add priors
 
 

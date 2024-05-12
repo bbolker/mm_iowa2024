@@ -8,9 +8,11 @@
 
 ## notes
 
-## data sets
+## data and code utilities
 
 * [partially annotated list](datasets.html)
 * [complete zipped file](glmm_data.zip)
+* [data on back end](https://github.com/bbolker/mm_iowa2024/tree/main/data)
+* [R code on back end](https://github.com/bbolker/mm_iowa2024/tree/main/R)
 
 * [GitHub site (back-end)](https://github.com/bbolker/mm_iowa2024/)
