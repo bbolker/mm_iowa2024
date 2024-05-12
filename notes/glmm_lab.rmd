@@ -23,6 +23,7 @@ library(aods3)
 library(glmmTMB)
 library(broom.mixed)
 library(dotwhisker)
+library(buildmer)
 ```
 
 # Model simplification examples
@@ -87,7 +88,7 @@ aa <- allFit(g1max)
 
 (warnings/messages suppressed)
 
-```{r inspect_allfit}
+```{r inspect_allfit, message = FALSE}
 source("R/allFit_utils.R")
 glance_allfit_NLL(aa)
 plot_allfit(aa)
@@ -99,7 +100,7 @@ plot_allfit(aa, keep_effects = "ran_pars")
 
 ## simplification
 
-- `(period|herd)` vs. `(1|period/herd)` ([positive] compound symmetry)
+- `(period|herd)` vs. `(1|period/herd)` (*positive* compound symmetry)
 
 $$
 (\textrm{intercept}, \textrm{slope}) =
@@ -148,35 +149,41 @@ bbmle::AICtab(g1cs, g1int, g1max)
 
 The latter model is called a **compound symmetry** model, i.e. the variances are the same and the covariances/correlations between all pairs are the same. This is a slightly restricted version of compound symmetry, because (the way we have set it up) only non-negative correlations are possible.
 In general, this is a good way to simplify variation of factor effects across groups when there are many levels of the factor, and when it is plausible to treat the factor levels as exchangeable.
-The simplified (CS) model works fine in this example - but is equivalent (in this case, where there is only one observation per herd per period) to observation-level random effects!
+The simplified (CS) model works fine in this example - but is equivalent (in this case, where there is only one observation per herd per period) to **observation-level random effects** ...
 
 ## gopher tortoise data
 
 ```{r g1}
 load("data/gopherdat2.RData")
+## for observation-level random effects
 Gdat$obs <- factor(seq(nrow(Gdat)))
 ```
 Our desired maximal model would be something like
 ```{r g2}
-glmer(shells~prev+offset(log(Area))+(1|year)+(1|Site)+(1|obs),
+g2 <- glmer(shells~prev+offset(log(Area))+(1|year)+(1|Site)+(1|obs),
       family=poisson,data=Gdat)
 ```
 or
 ```{r g3}
-glmmTMB(shells~prev+offset(log(Area))+(1|year)+(1|Site),
+g3 <- glmmTMB(shells~prev+offset(log(Area))+(1|year)+(1|Site),
       family=nbinom2,data=Gdat)
 ```
 
-Problems ...
+Singularity/non-positive definite Hessian problems ...
 
 ended up with this ...
 
 ```{r g4}
-gmod_lme4_L <- glmer(shells~prev+offset(log(Area))+factor(year)+(1|Site),
-      family=poisson,data=Gdat,
-      control=glmerControl(optimizer="bobyqa",
-                           check.conv.grad=.makeCC("warning",0.05)))
+gmod_lme4_L <- glm(shells~prev+offset(log(Area))+factor(year)+factor(Site),
+                   family=poisson, data=Gdat)
+```
 
+What does `buildmer` do in this case?
+
+```{r buildmer}
+gmod_bm <- buildmer(shells~prev+offset(log(Area))+(1|year)+(1|Site)+(1|obs),
+                    family=poisson,data=Gdat)
+summary(gmod_bm)
 ```
 
 (see [ecostats example](https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html))
@@ -200,10 +207,10 @@ t0 <- system.time(
 Inspect for singularity/overdispersion:
 
 ```{r banta_chk}
-eigen(VarCorr(mp1)$gen)$values
-eigen(VarCorr(mp1)$popu)$values
-deviance(mp1)/df.residual(mp1) ## !!
-aods3::gof(mp1)
+eigen(VarCorr(mp1)$gen)$values  ## OK
+eigen(VarCorr(mp1)$popu)$values ## problematic
+deviance(mp1)/df.residual(mp1) ## very serious overdispersion
+aods3::gof(mp1)  ## packaged version
 ```
 
 Add observation-level random effect (switch optimizer to BOBYQA)
@@ -234,6 +241,7 @@ t2 <- system.time(
 Better (`r round(t2["elapsed"])` seconds), although 
 `glmmTMB` doesn't handle singular fits as gracefully ...
 
+Replace full model with interactions (`*`) with additive model (`+`)
 ```{r reduce1,cache=TRUE}
 mp1X2 <- update(mp1X,
                 . ~ . - (amd*nutrient|popu)
@@ -280,9 +288,19 @@ mp1X5 <- afex::lmer_alt(total.fruits ~ nutrient*amd +
                         family="poisson")
 ```
 
-```{r dwplot}
-dwplot(list(mp1,mp1X3,mp1X4,mp1X5),effect="fixed")+
-    geom_vline(xintercept=0,lty=2)
+What does `buildmer` select?
+
+```{r buildmer2}
+L <- load("data/arabidopsis_batch.rda")
+buildmer_fit
 ```
+
+Check brute-force AIC results ...
+
+```{r AICtab}
+bbmle::AICtab(mp_fits)
+```
+
+Should probably use Bayes (possibly with regularizing priors ...)
 
 ## References

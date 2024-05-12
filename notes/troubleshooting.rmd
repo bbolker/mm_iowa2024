@@ -37,6 +37,7 @@ knitr::opts_knit$set(root.dir = here::here())
 library(tidyverse)
 library(broom.mixed)
 library(lme4)
+library(blme)
 library(glmmTMB)
 library(Matrix)
 ```
@@ -174,7 +175,7 @@ glance_allfit_NLL(aa)
 
 Run convergence check by hand:
 
-```{r}
+```{r convcheck}
 checkConv(model1@optinfo$derivs, model1@optinfo$val, lmerControl()$checkConv, model1@lower)
 ```
 
@@ -265,7 +266,28 @@ include_graphics("pix/uriarte.png")
 
 ## complete separation (GLM(M)-specific)
 
-* Bernoulli data
+* Bernoulli data with 0/1 separation, count data with 0/positive separation
 * Firth regression; add priors
 
+## example (from glmmTMB vignette)
 
+```{r complete_sep}
+load("data/culcita.RData")
+cdatx <- culcita_dat[-20,]
+form <- predation~ttt+(1|block)
+cmod_glmer <- glmer(form, data=cdatx, family=binomial)
+cmod_glmmTMB <- glmmTMB(form, data=cdatx, family=binomial)
+cmod_bglmer <- bglmer(form, data=cdatx, family=binomial,
+                    fixef.prior = normal(cov = diag(9,4)))
+cprior <- data.frame(prior = rep("normal(0,3)", 2),
+                     class = rep("beta", 2),
+                     coef = c("(Intercept)", ""))
+cmod_glmmTMB_p <- update(cmod_glmmTMB, priors = cprior)
+tt <- (tibble::lst(cmod_glmer, cmod_glmmTMB, cmod_bglmer, cmod_glmmTMB_p)
+    |> purrr::map_dfr(~ tidy(., effects = "fixed"), .id = "model")
+)
+ggplot(tt, aes(x = estimate, y = term, colour = model)) +
+       geom_pointrange(aes(xmin = estimate - 2*std.error,
+                           xmax = estimate + 2*std.error),
+                       position = position_dodge(width = 0.5))
+```
