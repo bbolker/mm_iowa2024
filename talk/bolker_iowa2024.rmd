@@ -79,12 +79,14 @@ $$
 
 # Past
 
-## What is a "routine" model/analysis?
+## What is a routine statistical analysis?
 
-* computation time/cost
-* availability of reliable software
+depends on:
+
 * data size
-* statistical complexity/sophistication
+* computation time/cost, memory requirements
+* availability of reliable software
+* complexity of the statistical model
 * ANOVA → linear models → GLMs → mixed models → ???
 
 ## Commoditization
@@ -92,7 +94,7 @@ $$
 * "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" ([Wikipedia](https://en.wikipedia.org/wiki/Commoditization))
 * basic components become part of a **stack**/utilities for higher-level features
 * operating system > linear algebra packages (BLAS, LAPACK) > regression tools > generalized linear models ...
-* build on top of old, well-tested frameworks
+* build on top of well-tested frameworks
 
 ## Democratization
 
@@ -104,8 +106,8 @@ $$
 
 ## Domain-specific languages
 
-* DSLs can express a *limited* set of requirements
-* R!
+*  *limited* set of requirements
+* R ("a free software environment"): also SAS ... 
 * *Wilkinson-Rogers-Bates* formulas [@WilkinsonRogers1973]
     * initial target: designed experiments
 	* `GENOTYPE*POL(SITE, 1,SITEMEAN)*POLND(DENSITY)`
@@ -119,14 +121,15 @@ who really knows what `y ~ x1*x2 + (x1*x2|g)` means?
 
 ## Ever-expanding possibilities
 
-```{r echo=FALSE}
-pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
+```{r echo=FALSE, cache=TRUE}
+## FIXME, rerun with cache
+## pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
 ```
 
-* [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions `r length(pkgs[[1]])` packages ...
+* [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions 169 packages ...
 
 ```{r nbr_graph, out.height=400, out.width = 400, fig.align = "center"}
-knitr::include_graphics("nbr_graph.png")
+knitr::include_graphics("pix/nbr_graph.png")
 ```
 
 ## Development and maintenance
@@ -153,15 +156,15 @@ Open source software is:
 * academics are paid to publish Cool Stuff
 * researchers are paid to Get Stuff Done
 * computational statisticians are rare
-* mixed models are a niche market  
-(`lme4` is approximately 92d (out of 21K) on CRAN)
+* mixed models are a niche market:  
+`lme4` is approximately #92 (out of 21K packages) on CRAN
 
 :::
 
 ::: {}
 
 ```{r dep, out.width=300, out.height=300}
-knitr::include_graphics("dependency_2x.png")
+knitr::include_graphics("pix/dependency_2x.png")
 ```
 
 :::
@@ -170,18 +173,20 @@ knitr::include_graphics("dependency_2x.png")
 
 ## Development models
 
-:::: {style="display: flex;"}
-
-Something here 
+:::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 50px;"}
 
 ::: {}
+
+* "the cathedral and the bazaar"
+* R (core): cathedral(ish)
+* R package ecosystem: bazaar-ish
 
 :::
 
 ::: {}
 
-```{r devel, out.width=300, out.height=300}
-include_graphics("cathedral_bazaar.png")
+```{r devel, out.width=400, out.height=400}
+include_graphics("pix/cathedral_bazaar.png")
 ```
 
 :::
@@ -190,17 +195,37 @@ include_graphics("cathedral_bazaar.png")
 
 ## Consolidation
 
-* `tidymodels` example
-* `easystats`
-* `broom.mixed`, `DHARMa`, `marginaleffects`
+:::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 50px;"}
 
+::: {}
+
+A partial solution to the Babel of the R ecosystem: multi-use front- and back-ends for workflow construction
+
+* workflows: `tidymodels`/`mixedmodels`/`easystats`
+* diagnostics: `DHARMa`, `performance::check_model()`
+* coefficient information: `broom.mixed`, `parameters`
+* model information: `broom.mixed`
+* predictions: `marginaleffects`
+* plotting: `sjPlot`
+
+:::
+
+::: {}
+
+```{r devel-consolidate, out.width=300, out.height=300}
+include_graphics("pix/logo_wall.png")
+```
+
+:::
+
+::::
 
 # Future
 
 ## Machine learning/AI
 
-```{r ML}
-include_graphics("ml_cartoon.png")
+```{r ML, out.width=600}
+include_graphics("pix/ml_cartoon.png")
 ```
 
 from [sandserifcomics](https://www.instagram.com/sandserifcomics/)
@@ -213,10 +238,18 @@ ML/SL:
 * prediction over inference [@breimanStatistical2001]
 * automatic differentiation
 
+## new stacks
+
+* METIS/SuiteSparse/CHOLMOD (Davis, Karypis: used in `lme4`, `TMB`)
+* INLA meshes (Lindgren, Rue)
+* spline basis construction (Wood/`mgcv`)
+* autodiff
+
 ## autodiff everywhere
 
-* magic algorithm
-* CppAD, TMB, Stan, PyTorch, Tensorflow (`greta`), NIMBLE, ...
+* magic algorithm: automatic gradients with cost <5$\times$ cost of objective function [@griewankIntroduction2003]
+* CppAD, TMB (Kristensen), Stan (Carpenter/Betancourt), PyTorch, Tensorflow (`greta`), NIMBLE (de Valpine)
+* memory-intensive
 
 ## prediction 'vs' inference
 
@@ -227,7 +260,7 @@ ML/SL:
 * uncertainty in a counterfactual effect == inference ???
 * connections to **causal inference**
 
-## Smooths everywhere
+## smooths everywhere
 
 * Revisit this layer: $\bb \sim \text{MVN}(\boldsymbol 0, \Sigma(\boldsymbol \theta))$
 * if $\Sigma$ is diagonal then this is equivalent to putting a *ridge penalty* ($\bb \bb^\top = \sum b_i^2$) on the conditional modes
@@ -235,7 +268,6 @@ ML/SL:
 * ... penalizing by $\bb \Sigma \bb^T$ is equivalent to using a **smoothing matrix** $\Sigma^{-1}$
 * Gaussian processes, splines, Markov random fields ...
 * `mgcv` package provides implementations that can be used anywhere [@wood_generalized_2017]
-    * including efficient low-rank approximations
     * `gamm4`, `glmmTMB`, `sdmTMB`, `brms` ...
 
 ## Scalability
@@ -251,15 +283,20 @@ ML/SL:
 
 ## Algorithms
 
+* linear algebra (decompositions) [@bates_fitting_2015]
+* EM algorithm
+* brute-force (RE)ML with autodiff [@brooks_modeling_2017]
 
 ## Sparsity
 
 * computational trick or statement about the world?
 * combining mixed models with sparsity-inducing penalization (e.g. `glmmLasso`)
-* statement about an **effect size spectrum**
-   * ridge penalty ($\sum \beta_i^2$) == Gaussian prior on effects
-   * lasso penalty ($\sum |\beta_i|$) == Laplacian prior on effects
-* or, what fits best??
+* INLA meshes leverage *conditional independence* of spatial points to handle spatial problems efficiently
+
+## Dimension reduction
+
+* `mgcv` smooths use *rank reduction* techniques instead of relying on sparsity
+* factor-analytic models: `glmmTMB`, `gllvm`
 
 ## Sliding toward Bayes
 
@@ -285,6 +322,30 @@ dd <- data.frame(package = factor(names(timings), levels = names(timings)),
 ggplot(dd, aes(x = time, y = package)) + geom_point(size=4) +
   scale_x_log10() + labs(x="time (sec)", y = "")
 ```
+
+## Looking ahead
+
+:::: {style="display: grid; grid-template-columns: 1fr 1fr; grid-column-gap: 50px;"}
+
+::: {}
+
+
+* further integration of advanced/scalable techniques into mainstream packages
+* improved modularity of estimation engines
+* improved workflow support
+
+:::
+
+::: {}
+
+```{r bubbles, out.width=300, out.height=300}
+include_graphics("pix/bubbles.jpg")
+```
+
+:::
+
+::::
+
 
 ## references {.refs .columns-2 .allowframebreaks}
 
