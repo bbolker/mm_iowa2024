@@ -34,6 +34,13 @@ nile <- data.frame(date = 1871:1970, flow = c(Nile))
 fit1 <- gls(flow ~ date, correlation = corAR1(), data = nile)
 ```
 
+## R-side modeling
+
+* structure of residual variance
+* Ironically, most R packages don't do R-side structures specially
+* Can construct an observation-level factor with the appropriate structure
+* May need to set the actual residual variance term to zero (`glmmTMB`, `blme`)
+
 ## Correlation structures in `lme4`
 
 * not much! strong assumption of unstructured covariance matrix
@@ -42,8 +49,7 @@ fit1 <- gls(flow ~ date, correlation = corAR1(), data = nile)
 * purely *semantic*; factor variables aren't handled well
 * `afex::mixed()` adds a layer to produce a diagonal covariance matrix even for factors (by splitting/creating dummies)
 
-## Correlation structures in `glmmTMB`
-
+## Correlation structures in `glmmTMB`: native
 
 ```{r}
 library(glmmTMB)
@@ -51,14 +57,45 @@ nile$dummy <- factor(1)
 fit2 <- glmmTMB(flow ~ date + ar1(factor(date) + 0 | dummy),
                 data = nile,
                 dispformula = ~ 0,
-                start = list(beta = c(6216, -2.758)))
+                REML = TRUE)
 ```
-
-## Reduced-rank (factor-analytic) smooths
 
 ## Correlation structure via smooths
 
-* `mgcv` smooths can (as of recently) be used 
+* `mgcv` smooths can (as of recently) be used in `glmmTMB`
+  * may be rough around the edges
+  * fewer downstream methods (inference, effective df) available
+* also `gamm4` (but less convenient and flexible)
+* constructs $\Z$, $\Sigma$ appropriately
+* $\Sigma$ is always known up to a constant
+  * e.g. scale, shape parameters for autoregressive/spatial terms must be specified *a priori*
+  * less important if controlling for correlation rather than making inferences
+  
+## `mgcv` smooths
+
+* long list: basic are different forms of 1D splines
+* Gaussian process smooths
+* **Markov random field** smooths (low rank approximation)
+
+## Reduced-rank (factor-analytic) smooths
+
+* factor-analytic models; 
+* `rr(...)` in `glmmTMB`, `gllvm` package (more specialized)
+
 
 ## sdmTMB
+
+* relatively new package
+* uses meshes, stochastic PDE framework from INLA for sparsity
+
+## spaMM
+
+* appears capable ...
+
+## pedigrees etc.
+
+* I know a lot less about these!
+* make $\Sigma$ proportional to the pedigree/phylogenetic matrix
+* how to hack with `glmmTMB` (`map` function)
+
 ## refs {.refs}

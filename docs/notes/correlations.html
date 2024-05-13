@@ -375,6 +375,18 @@ data(Nile)
 nile &lt;- data.frame(date = 1871:1970, flow = c(Nile))
 fit1 &lt;- gls(flow ~ date, correlation = corAR1(), data = nile)</code></pre>
 </div>
+<div id="r-side-modeling" class="section level2">
+<h2>R-side modeling</h2>
+<ul>
+<li>structure of residual variance</li>
+<li>Ironically, most R packages don’t do R-side structures
+specially</li>
+<li>Can construct an observation-level factor with the appropriate
+structure</li>
+<li>May need to set the actual residual variance term to zero
+(<code>glmmTMB</code>, <code>blme</code>)</li>
+</ul>
+</div>
 <div id="correlation-structures-in-lme4" class="section level2">
 <h2>Correlation structures in <code>lme4</code></h2>
 <ul>
@@ -388,26 +400,80 @@ terms</li>
 covariance matrix even for factors (by splitting/creating dummies)</li>
 </ul>
 </div>
-<div id="correlation-structures-in-glmmtmb" class="section level2">
-<h2>Correlation structures in <code>glmmTMB</code></h2>
+<div id="correlation-structures-in-glmmtmb-native" class="section level2">
+<h2>Correlation structures in <code>glmmTMB</code>: native</h2>
 <pre class="r"><code>library(glmmTMB)
 nile$dummy &lt;- factor(1)
 fit2 &lt;- glmmTMB(flow ~ date + ar1(factor(date) + 0 | dummy),
                 data = nile,
                 dispformula = ~ 0,
-                start = list(beta = c(6216, -2.758)))</code></pre>
-</div>
-<div id="reduced-rank-factor-analytic-smooths" class="section level2">
-<h2>Reduced-rank (factor-analytic) smooths</h2>
+                REML = TRUE)</code></pre>
+<pre><code>## Warning in finalizeTMB(TMBStruc, obj, fit, h, data.tmb.old): Model convergence
+## problem; non-positive-definite Hessian matrix. See vignette(&#39;troubleshooting&#39;)</code></pre>
+<pre><code>## Warning in finalizeTMB(TMBStruc, obj, fit, h, data.tmb.old): Model convergence
+## problem; false convergence (8). See vignette(&#39;troubleshooting&#39;),
+## help(&#39;diagnose&#39;)</code></pre>
 </div>
 <div id="correlation-structure-via-smooths" class="section level2">
 <h2>Correlation structure via smooths</h2>
 <ul>
-<li><code>mgcv</code> smooths can (as of recently) be used</li>
+<li><code>mgcv</code> smooths can (as of recently) be used in
+<code>glmmTMB</code>
+<ul>
+<li>may be rough around the edges</li>
+<li>fewer downstream methods (inference, effective df) available</li>
+</ul></li>
+<li>also <code>gamm4</code> (but less convenient and flexible)</li>
+<li>constructs <span class="math inline">\(\boldsymbol Z\)</span>, <span class="math inline">\(\Sigma\)</span> appropriately</li>
+<li><span class="math inline">\(\Sigma\)</span> is always known up to a
+constant
+<ul>
+<li>e.g. scale, shape parameters for autoregressive/spatial terms must
+be specified <em>a priori</em></li>
+<li>less important if controlling for correlation rather than making
+inferences</li>
+</ul></li>
+</ul>
+</div>
+<div id="mgcv-smooths" class="section level2">
+<h2><code>mgcv</code> smooths</h2>
+<ul>
+<li>long list: basic are different forms of 1D splines</li>
+<li>Gaussian process smooths</li>
+<li><strong>Markov random field</strong> smooths (low rank
+approximation)</li>
+</ul>
+</div>
+<div id="reduced-rank-factor-analytic-smooths" class="section level2">
+<h2>Reduced-rank (factor-analytic) smooths</h2>
+<ul>
+<li>factor-analytic models;</li>
+<li><code>rr(...)</code> in <code>glmmTMB</code>, <code>gllvm</code>
+package (more specialized)</li>
 </ul>
 </div>
 <div id="sdmtmb" class="section level2">
 <h2>sdmTMB</h2>
+<ul>
+<li>relatively new package</li>
+<li>uses meshes, stochastic PDE framework from INLA for sparsity</li>
+</ul>
+</div>
+<div id="spamm" class="section level2">
+<h2>spaMM</h2>
+<ul>
+<li>appears capable …</li>
+</ul>
+</div>
+<div id="pedigrees-etc." class="section level2">
+<h2>pedigrees etc.</h2>
+<ul>
+<li>I know a lot less about these!</li>
+<li>make <span class="math inline">\(\Sigma\)</span> proportional to the
+pedigree/phylogenetic matrix</li>
+<li>how to hack with <code>glmmTMB</code> (<code>map</code>
+function)</li>
+</ul>
 </div>
 <div id="refs" class="section level2 refs">
 <h2 class="refs">refs</h2>

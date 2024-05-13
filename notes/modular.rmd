@@ -116,4 +116,10 @@ m2 <- with(m2$env,
                           DLL = "glmmTMB"))
 ```
 
-## examples??
+## use of the `map` argument in `glmmTMB`
+
+* set parameters equal to starting values *or* fix values equal to each other
+* e.g. for an AR1 model, `map = list(theta = c(1, NA)), start = list(theta = 0, 1)` would estimate the first parameter (log-SD) and fix the correlation to its starting value
+* could pass a known correlation matrix (e.g. pedigree) by transforming into the `glmmTMB` parameterization and using `map`
+
+

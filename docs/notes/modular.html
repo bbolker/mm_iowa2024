@@ -471,8 +471,19 @@ m4 &lt;- finalizeTMB(m1, m2, m3)</code></pre>
                           silent = silent,
                           DLL = &quot;glmmTMB&quot;))</code></pre>
 </div>
-<div id="examples" class="section level2">
-<h2>examples??</h2>
+<div id="use-of-the-map-argument-in-glmmtmb" class="section level2">
+<h2>use of the <code>map</code> argument in <code>glmmTMB</code></h2>
+<ul>
+<li>set parameters equal to starting values <em>or</em> fix values equal
+to each other</li>
+<li>e.g. for an AR1 model,
+<code>map = list(theta = c(1, NA)), start = list(theta = 0, 1)</code>
+would estimate the first parameter (log-SD) and fix the correlation to
+its starting value</li>
+<li>could pass a known correlation matrix (e.g. pedigree) by
+transforming into the <code>glmmTMB</code> parameterization and using
+<code>map</code></li>
+</ul>
 </div>
 
 
