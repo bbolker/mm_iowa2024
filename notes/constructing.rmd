@@ -4,7 +4,6 @@ bibliography: "../glmm.bib"
 csl: ../nature.csl
 header-includes:
 - \usepackage{amsmath}
-- \usepackage{amssymbol}
 - \newcommand{\X}{\boldsymbol X}
 - \newcommand{\J}{\boldsymbol J}
 - \newcommand{\Z}{\boldsymbol Z}

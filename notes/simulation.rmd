@@ -2,7 +2,6 @@
 title: "generating simulated data from mixed models"
 header-includes:
 - \usepackage{amsmath}
-- \usepackage{amssymbol}
 bibliography: "../glmm.bib"
 csl: ../nature.csl
 ---

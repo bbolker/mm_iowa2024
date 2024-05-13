@@ -1,6 +1,9 @@
 %.html: %.rmd
 	Rscript -e "rmarkdown::render(\"$<\",output_format='html_document')"
 
+%.pdf: %.rmd
+	Rscript -e "rmarkdown::render(\"$<\",output_format='pdf_document')"
+
 %.html: %.md
 	Rscript -e "rmarkdown::render(\"$<\",output_format='html_document')"
 
@@ -19,12 +22,15 @@ docs/%.html: %.html
 
 notes = $(wildcard notes/*.rmd)
 notepages = $(notes:%.rmd=docs/%.html)
+notepdfs = $(notes:%.rmd=%.pdf)
 
 exercises = $(wildcard exercises/*.rmd)
 exerpages = $(exercises:%.rmd=docs/%.html)
 
 slides = $(wildcard notes/*.rmd)
 slidepages = $(slides:%.rmd=docs/%.slides.html)
+
+pdfnotes: $(notepdfs)
 
 pushnotes: $(notepages)  $(exerpages) docs/schedule.html docs/index.html docs/setup.html docs/datasets.html docs/glmm_data.zip
 
