@@ -35,6 +35,11 @@ h3 {
    background-color: #55bbff;
 }
 
+.pre {
+  height: 30pc;
+  overflow-y: scroll;
+}
+
 <!-- https://stackoverflow.com/questions/50378349/force-column-break-in-rmarkdown-ioslides-columns-2-layout -->
 .forceBreak { -webkit-column-break-after: always; break-after: column; }
 </style>
@@ -93,7 +98,7 @@ depends on:
 
 * "goods ... that are distinguishable in terms of attributes (uniqueness or brand) end up becoming simple commodities in the eyes of the market or consumers" ([Wikipedia](https://en.wikipedia.org/wiki/Commoditization))
 * basic components become part of a **stack**/utilities for higher-level features
-* operating system > linear algebra packages (BLAS, LAPACK) > regression tools > generalized linear models ...
+* operating system → linear algebra packages (BLAS, LAPACK) → regression tools → generalized linear models → mixed models → ... ?
 * build on top of well-tested frameworks
 
 ## Democratization
@@ -102,7 +107,9 @@ depends on:
 * ¿can we afford enough statistical consultants?
 * Efron: "recommending that scientists use [X] is like giving the neighborhood kids the key to your F-16" [@gelmanObjections2008]  
 (*X = "Bayes' Theorem" here but could be "mixed models"?*)
-* want to make easy things easy and hard things possible
+* make easy things easy and hard things possible  
+(and warn about inadvisable things?)
+* importance of sensible defaults
 
 ## Domain-specific languages
 
@@ -121,9 +128,8 @@ who really knows what `y ~ x1*x2 + (x1*x2|g)` means?
 
 ## Ever-expanding possibilities
 
-```{r echo=FALSE, cache=TRUE}
-## FIXME, rerun with cache
-## pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
+```{r get_pkgs, echo=FALSE, cache=TRUE}
+pkgs <- ctv:::.get_pkgs_from_ctv_or_repos("MixedModels")
 ```
 
 * [Mixed models task view](https://cran.r-project.org/web/views/MixedModels.html): currently mentions 169 packages ...
@@ -199,14 +205,13 @@ include_graphics("pix/cathedral_bazaar.png")
 
 ::: {}
 
-A partial solution to the Babel of the R ecosystem: multi-use front- and back-ends for workflow construction
+Partial solution to the Babel of the R ecosystem: multi-use front- and back-ends for workflows
 
 * workflows: `tidymodels`/`mixedmodels`/`easystats`
 * diagnostics: `DHARMa`, `performance::check_model()`
 * coefficient information: `broom.mixed`, `parameters`
 * model information: `broom.mixed`
-* predictions: `marginaleffects`
-* plotting: `sjPlot`
+* predictions: `marginaleffects`, `emmeans`
 
 :::
 
@@ -224,34 +229,34 @@ include_graphics("pix/logo_wall.png")
 
 ## Machine learning/AI
 
-```{r ML, out.width=600}
+```{r ML, out.width=400}
 include_graphics("pix/ml_cartoon.png")
 ```
 
 from [sandserifcomics](https://www.instagram.com/sandserifcomics/)
 
-## ML or 'statistical' learning
-
-ML/SL:
+## machine/statistical learning
 
 * emphasis on algorithms and scalability
-* prediction over inference [@breimanStatistical2001]
+* elevate prediction over inference [@breimanStatistical2001]
+* (modern) nonparametric models
 * automatic differentiation
 
-## new stacks
+## new software stacks
 
-* METIS/SuiteSparse/CHOLMOD (Davis, Karypis: used in `lme4`, `TMB`)
-* INLA meshes (Lindgren, Rue)
+* METIS/SuiteSparse/CHOLMOD  
+(Davis, Karypis: used in `lme4`, `TMB`)
+* INLA meshes (Lindgren, Rue: `INLA`, `sdmTMB`)
 * spline basis construction (Wood/`mgcv`)
-* autodiff
+* autodifferentiation
 
 ## autodiff everywhere
 
 * magic algorithm: automatic gradients with cost <5$\times$ cost of objective function [@griewankIntroduction2003]
-* CppAD, TMB (Kristensen), Stan (Carpenter/Betancourt), PyTorch, Tensorflow (`greta`), NIMBLE (de Valpine)
+* CppAD, TMB (Kristensen), Stan (Carpenter/Betancourt), PyTorch, Tensorflow (`greta`), NIMBLE (de Valpine) [@valpineProgramming2017]
 * memory-intensive
 
-## prediction 'vs' inference
+## prediction vs inference
 
 * any 'parameter' of a model is an expectation of a change in the response
    * partial dependence (*marginal effects*), conditional dependence: 
@@ -279,19 +284,21 @@ ML/SL:
    * number of top-level parameters ($\beta$, $\theta$): $10$ - $1000$
 * MLE scaling typically ${\cal O}(N^{3/2})$; method-of-moments ${\cal O}(N)$  
 (stochastic gradient descent???)
-*  Recent work on scalable MM, [@heilingEfficient2024; @heilingglmmPen2024; @gaoEfficient2017; @gaoEstimation2020a; @ghoshScalable2022; @ghoshBackfitting2022; @ghandwaniScalable2023]
+*  Recent work on scalable MM [@heilingEfficient2024; @heilingglmmPen2024; @gaoEfficient2017; @gaoEstimation2020a; @ghoshScalable2022; @ghoshBackfitting2022; @ghandwaniScalable2023]
 
 ## Algorithms
 
 * linear algebra (decompositions) [@bates_fitting_2015]
 * EM algorithm
 * brute-force (RE)ML with autodiff [@brooks_modeling_2017]
+* MCEM
+* ??
 
 ## Sparsity
 
 * computational trick or statement about the world?
 * combining mixed models with sparsity-inducing penalization (e.g. `glmmLasso`)
-* INLA meshes leverage *conditional independence* of spatial points to handle spatial problems efficiently
+* INLA meshes leverage *conditional independence* of spatial points to handle spatial problems efficiently (`sdmTMB`)
 
 ## Dimension reduction
 
@@ -314,12 +321,11 @@ ML/SL:
 * concern about subjectivity, ease of use [@efronWhy1986]
 * Bayes is still slower
 
-```{r timings, fig.width=3, fig.height = 2}
+```{r timings, fig.width=3.5, fig.height = 2}
 theme_set(theme_bw(base_size=12))
-timings <- readRDS("timecomp.rds") |> sort() |> rev()
-dd <- data.frame(package = factor(names(timings), levels = names(timings)),
-   time = timings)
-ggplot(dd, aes(x = time, y = package)) + geom_point(size=4) +
+dd <- readRDS("timecomp.rds") |> dplyr::arrange(desc(time)) |>
+    dplyr::mutate(package = factor(pkg, levels = unique(pkg)))
+ggplot(dd, aes(x = time, y = package)) + geom_boxplot(fill = "gray") + 
   scale_x_log10() + labs(x="time (sec)", y = "")
 ```
 
@@ -333,13 +339,14 @@ ggplot(dd, aes(x = time, y = package)) + geom_point(size=4) +
 * further integration of advanced/scalable techniques into mainstream packages
 * improved modularity of estimation engines
 * improved workflow support
+* community support?
 
 :::
 
 ::: {}
 
 ```{r bubbles, out.width=300, out.height=300}
-include_graphics("pix/bubbles.jpg")
+include_graphics("pix/bubbles_txt.png")
 ```
 
 :::
@@ -347,5 +354,5 @@ include_graphics("pix/bubbles.jpg")
 ::::
 
 
-## references {.refs .columns-2 .allowframebreaks}
+## references {.refs .columns-2 .pre}
 

@@ -9,7 +9,6 @@ output:
 link-citations: true   
 header-includes:
 - \usepackage{amsmath}
-- \usepackage{amssymbol}
 - \newcommand{\y}{\boldsymbol y}
 - \newcommand{\X}{\boldsymbol X}
 - \newcommand{\Z}{\boldsymbol Z}

@@ -2,10 +2,13 @@ library(lme4)
 library(brms)
 library(rstanarm)
 library(MCMCglmm)
-
-t1 <- system.time(
+library(glmmTMB)
+t1 <- replicate(10, system.time(
     lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
-)
+)[[3]])
+t1B <- replicate(10, system.time(
+    glmmTMB(Reaction ~ Days + (Days | Subject), sleepstudy)
+)[[3]])
 ## 0.03 seconds
 t2 <- system.time(
     stan_lmer(Reaction ~ Days + (Days | Subject), sleepstudy)
@@ -27,11 +30,11 @@ t6 <- system.time(
                     prior = list(G = list(list(V=diag(2), nu = 0.1))))
 )
 
-res <- c(lmer = t1[[3]],
-         rstanarm = t2[[3]],
-         brms_total = t3[[3]],
-         brms_compile = t4[[3]],
-         brms_sample = t5[[3]],
-         MCMCglmm = t6[[3]])
+res <- data.frame(
+    pkg = rep(c("lmer", "glmmTMB",
+          "rstanarm", "brms_total", "brms_compile",
+          "brms_sample", "MCMCglmm"),
+          c(10,10,1,1,1,1,1)),
+    time = c(t1, t1B, t2[[3]], 
+      t3[[3]], t4[[3]], t5[[3]], t6[[3]]))
 saveRDS(res, file = "timecomp.rds")
-
