@@ -1,14 +1,15 @@
-name,response_var,clustered?,grouping vars,source,object name (for Rdata),reference
-Arabidopsis,,y,reg+popu+gen+rack,Banta.RData,dat.tf,@banta_comprehensive_2010
-Contraception,,y,district,`mlmRev` package,,@steele_immunization_1996
-fire_diversity,mamph_log;mbirds_log;mamm_log,y,flor_realms+biome+biome_FR,ecoreg.rds,,@moritzrole2023a
-Gopher tortoises,shells,y,Site,gopherdat2.RData,Gdat,@ozgul_upper_2009
-Owls,,y,Nest,`glmmTMB` package,,@roulin_nestling_2007
-seastar,,y,block,culcita.RData,culcita_dat,@mckeon_multiple_2012
-singing mouse,,y,ID,singingmouse.csv,,@pasch_interspecific_2013
-starling,,y,subjectnum,starling.Rdata,dataf,"Toby Marthews, r-help"
-ticks,,y,BROOD+LOCATION,Elston2001_tickdata.txt,,@elston_analysis_2001
-tundra,,y,Site,tundra.csv,,@belshe_tundra_2013
-AIDS,,n,,aids.csv,,@dobson_introduction_2008
-lizards,,n,,`brglm` package,,@schoener_nonsynchronous_1970
-sea turtle nesting,,n,,dufemalepers.csv,,@Tiwari+2006
+name,response_var,clustered?,grouping vars,source,object name (for Rdata),primary_reference,secondary_refs,response_type,model_type,tricky_bits
+Arabidopsis,total.fruits,y,reg+popu+gen+rack,Banta.RData,dat.tf,@banta_comprehensive_2010,[example](https://github.com/bbolker/asaglmm/blob/master/exercises/Banta_ex.Rnw),count,GLMM,singularity/regularization
+Contraception,use,y,district,`mlmRev` package,,@steele_immunization_1996,[example](https://bbolker.github.io/stat4c03/notes/logistic.pdf),binary,GLMM,quadratic effect of age
+fire_diversity,mamph_log;mbirds_log;mamm_log,y,flor_realms+biome+biome_FR,ecoreg.rds,,@moritzrole2023a,https://github.com/bbolker/mmd_utils/,continuous,LMM,singularity/regularization
+Gopher tortoises,shells,y,Site,gopherdat2.RData,Gdat,@ozgul_upper_2009,https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html,count,GLMM,singularity/simplification
+Owls,SiblingNegotiation,y,Nest,`glmmTMB` package,,@roulin_nestling_2007,,count,ZIGLMM,
+seastar,predation,y,block,culcita.RData,culcita_dat,@mckeon_multiple_2012,https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html,binary,GLMM,separation
+singing mouse,Response,y,ID,singingmouse.csv,,@pasch_interspecific_2013,,count,GLMM,singularity/collapse count to binary
+starling,stmass,y,subjectnum,starling.Rdata,dataf,"Toby Marthews, r-help",,continuous,LMM,
+ticks,TICKS,y,BROOD+LOCATION,Elston2001_tickdata.txt,,@elston_analysis_2001,https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html,count,GLMM,
+tundra,NEE,y,Site,tundra.csv,,@belshe_tundra_2013,https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html,continuous,LMM(AR1),
+AIDS,cases,n,,aids.csv,,@dobson_introduction_2008,,count,GLM,
+lizards,grahami/opalinus,n,,`brglm` package,,@schoener_nonsynchronous_1970,,proportion,GLM,
+sea turtle nesting,du/notdu,n,,dufemalepers.csv,,@Tiwari+2006,,proportion,GLM,
+cbpp,incidence,y,herd,`lme4` package,,@lesnoff_within-herd_2004,,proportion,GLMM,

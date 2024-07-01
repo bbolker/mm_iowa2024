@@ -44,6 +44,8 @@ fit <- mkMerMod(environment(devfun), opt, lmod$reTrms, fr = lmod$fr)
 
 ## example: AR1 correlation structure
 
+From Wicklin, Rick (2018) [“Fast Simulation of Multivariate Normal Data with an AR(1) Correlation Structure.”](https://blogs.sas.com/content/iml/2018/10/03/ar1-cholesky-root-simulation.html), code to generate the Cholesky factor of an AR1 covariance directly.
+
 ```{r ar1cor}
 ar1cor <- function(rho, p) {
     R <- matrix(0, p, p)

@@ -3,12 +3,17 @@ title: "Linear mixed models in R: nitty-gritty"
 author: Ben Bolker
 bibliography: "../glmm.bib"
 date: "`r format(Sys.time(), '%d %B %Y ')`"
+header-includes:
+  - \DeclareUnicodeCharacter{03B2}{\ensuremath{\beta}}
+  - \DeclareUnicodeCharacter{223C}{\ensuremath{\sim}}
+  - \DeclareUnicodeCharacter{2223}{|}
 ---
 
 ![cc](pix/cc-attrib-nc.png)
 Licensed under the 
 [Creative Commons attribution-noncommercial license](http://creativecommons.org/licenses/by-nc/3.0/).
 Please share \& remix noncommercially, mentioning its origin.
+
 
 ```{r pkgs,echo=FALSE,message=FALSE,warning=FALSE}
 library(ggplot2);theme_set(theme_bw())

@@ -256,6 +256,7 @@ if (window.hljs) {
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
+margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -371,7 +372,7 @@ display: none;
 
 
 <h1 class="title toc-ignore">Data sets</h1>
-<h4 class="date">20:08 07 May 2024</h4>
+<h4 class="date">16:04 01 July 2024</h4>
 
 </div>
 
@@ -380,135 +381,224 @@ display: none;
 (you may need to switch to “raw mode” to download CSV files)</p>
 <table>
 <colgroup>
-<col width="14%" />
+<col width="6%" />
+<col width="9%" />
+<col width="4%" />
 <col width="8%" />
-<col width="19%" />
-<col width="17%" />
-<col width="17%" />
-<col width="21%" />
+<col width="8%" />
+<col width="8%" />
+<col width="9%" />
+<col width="25%" />
+<col width="4%" />
+<col width="4%" />
+<col width="9%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">name</th>
+<th align="left">response_var</th>
 <th align="left">clustered?</th>
 <th align="left">grouping vars</th>
 <th align="left">source</th>
 <th align="left">object name (for Rdata)</th>
-<th align="left">reference</th>
+<th align="left">primary_reference</th>
+<th align="left">secondary_refs</th>
+<th align="left">response_type</th>
+<th align="left">model_type</th>
+<th align="left">tricky_bits</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">lizards</td>
-<td align="left">n</td>
-<td align="left"></td>
-<td align="left"><code>brglm</code> package</td>
-<td align="left"></td>
-<td align="left"><span class="citation">Schoener (1970)</span></td>
+<td align="left">Arabidopsis</td>
+<td align="left">total.fruits</td>
+<td align="left">y</td>
+<td align="left">reg+popu+gen+rack</td>
+<td align="left">Banta.RData</td>
+<td align="left">dat.tf</td>
+<td align="left"><span class="citation">Banta et al. (2010)</span></td>
+<td align="left"><a href="https://github.com/bbolker/asaglmm/blob/master/exercises/Banta_ex.Rnw">example</a></td>
+<td align="left">count</td>
+<td align="left">GLMM</td>
+<td align="left">singularity/regularization</td>
 </tr>
 <tr class="even">
-<td align="left">tundra</td>
+<td align="left">Contraception</td>
+<td align="left">use</td>
 <td align="left">y</td>
-<td align="left">Site</td>
-<td align="left">tundra.csv</td>
+<td align="left">district</td>
+<td align="left"><code>mlmRev</code> package</td>
 <td align="left"></td>
-<td align="left"><span class="citation">Belshe et al. (2013)</span></td>
+<td align="left"><span class="citation">Steele et al. (1996)</span></td>
+<td align="left"><a href="https://bbolker.github.io/stat4c03/notes/logistic.pdf">example</a></td>
+<td align="left">binary</td>
+<td align="left">GLMM</td>
+<td align="left">quadratic effect of age</td>
 </tr>
 <tr class="odd">
-<td align="left">ticks</td>
+<td align="left">fire_diversity</td>
+<td align="left">mamph_log;mbirds_log;mamm_log</td>
 <td align="left">y</td>
-<td align="left">BROOD+LOCATION</td>
-<td align="left">Elston2001_tickdata.txt</td>
+<td align="left">flor_realms+biome+biome_FR</td>
+<td align="left">ecoreg.rds</td>
 <td align="left"></td>
-<td align="left"><span class="citation">Elston et al. (2001)</span></td>
+<td align="left"><span class="citation">Moritz et al. (2023)</span></td>
+<td align="left"><a href="https://github.com/bbolker/mmd_utils/" class="uri">https://github.com/bbolker/mmd_utils/</a></td>
+<td align="left">continuous</td>
+<td align="left">LMM</td>
+<td align="left">singularity/regularization</td>
 </tr>
 <tr class="even">
-<td align="left">seastar</td>
+<td align="left">Gopher tortoises</td>
+<td align="left">shells</td>
 <td align="left">y</td>
-<td align="left">block</td>
-<td align="left">culcita.RData</td>
-<td align="left">culcita_dat</td>
-<td align="left"><span class="citation">McKeon et al. (2012)</span></td>
+<td align="left">Site</td>
+<td align="left">gopherdat2.RData</td>
+<td align="left">Gdat</td>
+<td align="left"><span class="citation">Ozgul et al. (2009)</span></td>
+<td align="left"><a href="https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html" class="uri">https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html</a></td>
+<td align="left">count</td>
+<td align="left">GLMM</td>
+<td align="left">singularity/simplification</td>
 </tr>
 <tr class="odd">
 <td align="left">Owls</td>
+<td align="left">SiblingNegotiation</td>
 <td align="left">y</td>
 <td align="left">Nest</td>
 <td align="left"><code>glmmTMB</code> package</td>
 <td align="left"></td>
 <td align="left"><span class="citation">Roulin &amp; Bersier
 (2007)</span></td>
+<td align="left"></td>
+<td align="left">count</td>
+<td align="left">ZIGLMM</td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">Arabidopsis</td>
+<td align="left">seastar</td>
+<td align="left">predation</td>
 <td align="left">y</td>
-<td align="left">reg+popu+gen+rack</td>
-<td align="left">Banta.RData</td>
-<td align="left">dat.tf</td>
-<td align="left"><span class="citation">Banta et al. (2010)</span></td>
+<td align="left">block</td>
+<td align="left">culcita.RData</td>
+<td align="left">culcita_dat</td>
+<td align="left"><span class="citation">McKeon et al. (2012)</span></td>
+<td align="left"><a href="https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html" class="uri">https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html</a></td>
+<td align="left">binary</td>
+<td align="left">GLMM</td>
+<td align="left">separation</td>
 </tr>
 <tr class="odd">
-<td align="left">Contraception</td>
+<td align="left">singing mouse</td>
+<td align="left">Response</td>
 <td align="left">y</td>
-<td align="left">district</td>
-<td align="left"><code>mlmRev</code> package</td>
+<td align="left">ID</td>
+<td align="left">singingmouse.csv</td>
 <td align="left"></td>
-<td align="left"><span class="citation">Steele et al. (1996)</span></td>
+<td align="left"><span class="citation">Pasch et al. (2013)</span></td>
+<td align="left"></td>
+<td align="left">count</td>
+<td align="left">GLMM</td>
+<td align="left">singularity/collapse count to binary</td>
 </tr>
 <tr class="even">
-<td align="left">Gopher tortoises</td>
+<td align="left">starling</td>
+<td align="left">stmass</td>
+<td align="left">y</td>
+<td align="left">subjectnum</td>
+<td align="left">starling.Rdata</td>
+<td align="left">dataf</td>
+<td align="left">Toby Marthews, r-help</td>
+<td align="left"></td>
+<td align="left">continuous</td>
+<td align="left">LMM</td>
+<td align="left"></td>
+</tr>
+<tr class="odd">
+<td align="left">ticks</td>
+<td align="left">TICKS</td>
+<td align="left">y</td>
+<td align="left">BROOD+LOCATION</td>
+<td align="left">Elston2001_tickdata.txt</td>
+<td align="left"></td>
+<td align="left"><span class="citation">Elston et al. (2001)</span></td>
+<td align="left"><a href="https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html" class="uri">https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html</a></td>
+<td align="left">count</td>
+<td align="left">GLMM</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">tundra</td>
+<td align="left">NEE</td>
 <td align="left">y</td>
 <td align="left">Site</td>
-<td align="left">gopherdat2.RData</td>
-<td align="left">Gdat</td>
-<td align="left"><span class="citation">Ozgul et al. (2009)</span></td>
+<td align="left">tundra.csv</td>
+<td align="left"></td>
+<td align="left"><span class="citation">Belshe et al. (2013)</span></td>
+<td align="left"><a href="https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html" class="uri">https://bbolker.github.io/mixedmodels-misc/ecostats_chap.html</a></td>
+<td align="left">continuous</td>
+<td align="left">LMM(AR1)</td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">sea turtle nesting</td>
-<td align="left">n</td>
-<td align="left"></td>
-<td align="left">dufemalepers.csv</td>
-<td align="left"></td>
-<td align="left"><span class="citation">Tiwari et al. (2006)</span></td>
-</tr>
-<tr class="even">
 <td align="left">AIDS</td>
+<td align="left">cases</td>
 <td align="left">n</td>
 <td align="left"></td>
 <td align="left">aids.csv</td>
 <td align="left"></td>
 <td align="left"><span class="citation">Dobson &amp; Barnett
 (2008)</span></td>
-</tr>
-<tr class="odd">
-<td align="left">singing mouse</td>
-<td align="left">y</td>
-<td align="left">ID</td>
-<td align="left">singingmouse.csv</td>
 <td align="left"></td>
-<td align="left"><span class="citation">Pasch et al. (2013)</span></td>
+<td align="left">count</td>
+<td align="left">GLM</td>
+<td align="left"></td>
 </tr>
 <tr class="even">
-<td align="left">starling</td>
-<td align="left">y</td>
-<td align="left">subjectnum</td>
-<td align="left">starling.Rdata</td>
-<td align="left">dataf</td>
-<td align="left">Toby Marthews, r-help</td>
+<td align="left">lizards</td>
+<td align="left">grahami/opalinus</td>
+<td align="left">n</td>
+<td align="left"></td>
+<td align="left"><code>brglm</code> package</td>
+<td align="left"></td>
+<td align="left"><span class="citation">Schoener (1970)</span></td>
+<td align="left"></td>
+<td align="left">proportion</td>
+<td align="left">GLM</td>
+<td align="left"></td>
 </tr>
 <tr class="odd">
-<td align="left">fire_diversity</td>
-<td align="left">y</td>
-<td align="left">flor_realms+biome+biome_FR</td>
-<td align="left">ecoreg.rds</td>
+<td align="left">sea turtle nesting</td>
+<td align="left">du/notdu</td>
+<td align="left">n</td>
 <td align="left"></td>
-<td align="left"><span class="citation">Moritz et al. (2023)</span></td>
+<td align="left">dufemalepers.csv</td>
+<td align="left"></td>
+<td align="left"><span class="citation">Tiwari et al. (2006)</span></td>
+<td align="left"></td>
+<td align="left">proportion</td>
+<td align="left">GLM</td>
+<td align="left"></td>
+</tr>
+<tr class="even">
+<td align="left">cbpp</td>
+<td align="left">incidence</td>
+<td align="left">y</td>
+<td align="left">herd</td>
+<td align="left"><code>lme4</code> package</td>
+<td align="left"></td>
+<td align="left"><span class="citation">Lesnoff et al.
+(2004)</span></td>
+<td align="left"></td>
+<td align="left">proportion</td>
+<td align="left">GLMM</td>
+<td align="left"></td>
 </tr>
 </tbody>
 </table>
 <div id="references" class="section level2 unnumbered">
 <h2 class="unnumbered">References</h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-banta_comprehensive_2010" class="csl-entry">
 Banta, J. A., Stevens, M. H. H., &amp; Pigliucci, M. (2010). A
 comprehensive test of the ’limiting resources’ framework applied to
@@ -530,6 +620,12 @@ generalized linear models, third edition</em> (3rd ed.). Chapman;
 Elston, D. A., Moss, R., Boulinier, T., Arrowsmith, C., &amp; Lambin, X.
 (2001). Analysis of aggregation, a worked example: Numbers of ticks on
 red grouse chicks. <em>Parasitology</em>, <em>122</em>(5), 563–569.
+</div>
+<div id="ref-lesnoff_within-herd_2004" class="csl-entry">
+Lesnoff, M., Laval, G., Bonnet, P., Abdicho, S., Workalemahu, A., Kifle,
+D., … Thiaucourt, F. (2004). Within-herd spread of contagious bovine
+pleuropneumonia in <span>Ethiopian</span> highlands. <em>Preventive
+Veterinary Medicine</em>, <em>64</em>(1), 27–40. http://doi.org/<a href="https://doi.org/10.1016/j.prevetmed.2004.03.005">10.1016/j.prevetmed.2004.03.005</a>
 </div>
 <div id="ref-mckeon_multiple_2012" class="csl-entry">
 McKeon, C. S., Stier, A., McIlroy, S., &amp; Bolker, B. (2012). Multiple
