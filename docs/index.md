@@ -16,3 +16,7 @@
 * [R code on back end](https://github.com/bbolker/mm_iowa2024/tree/main/R)
 
 * [GitHub site (back-end)](https://github.com/bbolker/mm_iowa2024/)
+
+---
+
+[talk slides](./bolker_iowa2024.html)
